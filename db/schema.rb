@@ -10,26 +10,51 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_02_191033) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "accounts", force: :cascade do |t|
-    t.string "uuid", null: false
+  create_table "addresses", force: :cascade do |t|
+    t.string "street"
+    t.integer "number"
+    t.string "neighborhood"
+    t.string "cep"
+    t.string "city"
+    t.string "state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+    t.index ["neighborhood"], name: "index_addresses_on_neighborhood"
+    t.index ["street"], name: "index_addresses_on_street"
   end
 
-  create_table "memberships", force: :cascade do |t|
-    t.string "role", limit: 16, null: false
-    t.bigint "user_id", null: false
-    t.bigint "account_id", null: false
+  create_table "merriages", force: :cascade do |t|
+    t.integer "husband_id"
+    t.integer "wife_id"
+    t.boolean "is_member"
+    t.string "campus"
+    t.string "registred_by"
+    t.text "reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id", "user_id"], name: "index_memberships_on_account_id_and_user_id", unique: true
-    t.index ["account_id"], name: "index_memberships_on_account_id"
-    t.index ["user_id"], name: "index_memberships_on_user_id"
+    t.index ["husband_id", "wife_id"], name: "index_merriages_on_husband_id_and_wife_id", unique: true
+    t.index ["husband_id"], name: "index_merriages_on_husband_id"
+    t.index ["wife_id"], name: "index_merriages_on_wife_id"
+  end
+
+  create_table "studant_subscriptions", force: :cascade do |t|
+    t.integer "marriage_id"
+    t.integer "voucher_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_tokens", force: :cascade do |t|
+    t.string "access_token", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_token"], name: "index_user_tokens_on_access_token", unique: true
+    t.index ["user_id"], name: "index_user_tokens_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -39,9 +64,26 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_02_191033) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cpf"
+    t.string "gender"
+    t.date "date_of_birth"
+    t.string "shirt_size"
+    t.bigint "address_id"
+    t.string "role", default: "student"
+    t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 
-  add_foreign_key "memberships", "accounts"
-  add_foreign_key "memberships", "users"
+  create_table "vouchers", force: :cascade do |t|
+    t.string "code", null: false
+    t.boolean "is_available", default: true
+    t.datetime "expiration_at", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_vouchers_on_code", unique: true
+  end
+
+  add_foreign_key "user_tokens", "users"
+  add_foreign_key "users", "addresses"
 end
