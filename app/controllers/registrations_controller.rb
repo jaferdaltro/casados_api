@@ -3,10 +3,10 @@ class RegistrationsController < ApplicationController
     user = User.new(registrations_params)
 
     if user.save
-      render_json_with_model_success(status: :ok)
+      render_json_with_success(status: :ok)
     else
       # debugger
-      render_json_with_model_errors(status: :unprocessable_entity, messages: user.errors.full_messages)
+      render_json_with_error(status: :unprocessable_entity, message: user.errors.full_messages)
     end
   end
 
