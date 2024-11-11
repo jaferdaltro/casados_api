@@ -27,7 +27,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.index ["street"], name: "index_addresses_on_street"
   end
 
-  create_table "merriages", force: :cascade do |t|
+  create_table "marriages", force: :cascade do |t|
     t.integer "husband_id"
     t.integer "wife_id"
     t.boolean "is_member"
@@ -36,9 +36,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.text "reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["husband_id", "wife_id"], name: "index_merriages_on_husband_id_and_wife_id", unique: true
-    t.index ["husband_id"], name: "index_merriages_on_husband_id"
-    t.index ["wife_id"], name: "index_merriages_on_wife_id"
+    t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
+    t.index ["husband_id"], name: "index_marriages_on_husband_id"
+    t.index ["wife_id"], name: "index_marriages_on_wife_id"
   end
 
   create_table "studant_subscriptions", force: :cascade do |t|
