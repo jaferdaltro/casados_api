@@ -2,7 +2,7 @@ class User < ApplicationRecord
   VALID_PHONE_REGEX = /\A\(?([0-9]{2})\)?[-. ]?([0-9]{4,5})[-. ]?([0-9]{4})\z/
   has_secure_password
 
-  has_one :merriage, foreign_key: :wife_id, dependent: :destroy
+  has_one :marriage, foreign_key: :wife_id, dependent: :destroy
   has_one :membership, dependent: :destroy
 
   has_one :token, class_name: "UserToken", dependent: :destroy
@@ -17,5 +17,5 @@ class User < ApplicationRecord
 
   scope :find_by_phone, ->(phone) { find_by(phone: phone) }
 
-  enum role: %i[coordinator leader co_leader student], _prefix: true
+  enum :role, %i[coordinator leader co_leader student], prefix: true
 end
