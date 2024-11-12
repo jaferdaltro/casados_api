@@ -41,7 +41,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.index ["wife_id"], name: "index_marriages_on_wife_id"
   end
 
-  create_table "studant_subscriptions", force: :cascade do |t|
+  create_table "student_subscriptions", force: :cascade do |t|
     t.integer "marriage_id"
     t.integer "voucher_id", null: false
     t.datetime "created_at", null: false
@@ -66,8 +66,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.datetime "updated_at", null: false
     t.string "cpf"
     t.string "gender"
-    t.date "date_of_birth"
-    t.string "shirt_size"
+    t.date "birth_at"
+    t.string "tshirt_size"
     t.bigint "address_id"
     t.string "role", default: "student"
     t.index ["address_id"], name: "index_users_on_address_id"
