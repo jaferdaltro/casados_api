@@ -17,5 +17,5 @@ class User < ApplicationRecord
 
   scope :find_by_phone, ->(phone) { find_by(phone: phone) }
 
-  enum :role, %i[coordinator leader co_leader student], prefix: true
+  enum :role, %i[coordinator leader co_leader student], prefix: true, default: :student
 end
