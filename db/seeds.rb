@@ -9,7 +9,7 @@
   # end
 
   %i[coordinator leader co_leader student].each do |role|
-    amanda = User.create!(name: 'Amanda', phone: '11999999999', gender: 'female', email: 'a@a', password: '123456', password_confirmation: '123456', role: role)
+    amanda = User.create!(name: 'Amanda', phone: '85999354538', gender: 'female', email: 'a@a', password: '123456', password_confirmation: '123456', role: role)
     gustavo = User.create!(name: 'Gustavo', phone: '11999992399', gender: 'male', email: 'a@a', password: '123456', password_confirmation: '123456', role: amanda.role)
     Marriage.create!(husband_id: gustavo.id, wife_id: amanda.id, is_member: true, campus: 'A', registred_by: 'Amanda', reason: 'A')
 
