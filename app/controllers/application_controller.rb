@@ -13,11 +13,11 @@ class ApplicationController < ActionController::API
 
   protected
 
-  # def authenticate_user!
-  #   return if current_user
+  def authenticate_user!
+    return if current_user
 
-  #   render_json_with_error(status: :unauthorized, message: "Não autorizado")
-  # end
+    render_json_with_error(status: :unauthorized, message: "Não autorizado")
+  end
 
   def logged_in?
     !current_user.nil?
