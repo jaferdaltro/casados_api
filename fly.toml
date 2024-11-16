@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for casados-api on 2024-11-16T08:19:51-03:00
+# fly.toml app configuration file generated for casados-api on 2024-11-16T09:44:46-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'casados'
+app = 'casados-api'
 primary_region = 'gig'
 console_command = '/rails/bin/rails console'
 
