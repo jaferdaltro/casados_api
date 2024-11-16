@@ -8,6 +8,12 @@ module API::V1
       end
     end
 
+    def index
+      render json: ::Marriage.all,
+      include: [ :husband, :wife ],
+      fields: { marriages: [ :id, :is_member, :registred_by, :reason ] }
+    end
+
     private
 
     def create_marriage

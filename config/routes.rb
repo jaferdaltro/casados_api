@@ -7,13 +7,13 @@ Rails.application.routes.draw do
 
   namespace :api, constraints: { format: "json" } do
     namespace :v1 do
-      resource :vouchers, only: [ :create ]
+      resources :vouchers, only: [ :create ]
       namespace :student do
-        resource :subscriptions, only: [ :create ]
+        resources :subscriptions, only: [ :create, :index ]
       end
       namespace :user do
-        resource :registrations, only: [ :create ]
-        resource :sessions, only: [ :create, :destroy ]
+        resources :registrations, only: [ :create ]
+        resources :sessions, only: [ :create, :destroy ]
       end
     end
   end
