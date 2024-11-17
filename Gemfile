@@ -33,6 +33,9 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
+  # Use dotenv-rails for environment variables
+  gem "dotenv-rails", "~> 3.1", ">= 3.1.4"
+
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
@@ -40,6 +43,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
-gem "dockerfile-rails", ">= 1.6", :group => :development
+gem "dockerfile-rails", ">= 1.6", group: :development
 
 gem "redis", "~> 5.3"
