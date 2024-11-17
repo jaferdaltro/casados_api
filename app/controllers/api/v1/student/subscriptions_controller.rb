@@ -1,8 +1,8 @@
 module API::V1
   class Student::SubscriptionsController < ApplicationController
     def create
-      if voucher_params.has_key?(:code)
-       create_marriage
+      if Voucher.is_valide?(voucher)
+       ::Marriage.create_marriage(husband_params, wife_params, marriage_params)
       else
         render_json_with_error(status: :unprocessable_entity, message: "Voucher inválido")
       end
@@ -16,23 +16,30 @@ module API::V1
 
     private
 
-    def create_marriage
-      husband = ::User.new(husband_params)
-      wife = ::User.new(wife_params)
-      if husband.save && wife.save
-        husband_id = husband.id
-        wife_id = wife.id
+    def voucher
+      ::Voucher.find_by(code: voucher_params[:code])
+    end
+
+    def is_pix?
+      debugger
+      payment_param[:payment][:pix] == true
+    end
+
+    def pix
+      assas = AsaasPixCharge.new
+      assas.create
+    end
+
+    def credit_card
+    end
+
+    def create_charge
+      if is_pix?
+        pix
+      elsif is_credit_card?
+        # TODO
       else
-        return render_json_with_error(status: :unprocessable_entity, message: [ husband.errors.full_messages, wife.errors.full_messages ].flatten)
-      end
-      is_member = marriage_params[:is_member]
-      registred_by = marriage_params[:registred_by]
-      reason = marriage_params[:reason]
-      marriage = ::Marriage.new(husband_id: husband_id, wife_id: wife_id, is_member: is_member, registred_by: registred_by, reason: reason)
-      if marriage.save
-        render_json_with_success(status: :ok)
-      else
-        render_json_with_error(status: :unprocessable_entity, message: marriage.errors.full_messages)
+        render_json_with_error(status: :unprocessable_entity, message: "Pagamento inválido")
       end
     end
 
@@ -79,13 +86,26 @@ module API::V1
     def marriage_params
       return {} unless params.has_key?(:marriage)
 
-      @marriage_params ||= params.require(:marriage).permit(:is_member, :registred_by, :reason)
+      @marriage_params ||= params.require(:marriage).permit(
+        :is_member,
+        :registred_by,
+        :religion,
+        :reason,
+        :children_quantity,
+        days_availability: []
+      ).with_defaults(active: false)
     end
 
     def voucher_params
       return {} unless params.has_key?(:voucher)
 
       @voucher_params ||= params.require(:voucher).permit(:code)
+    end
+
+    def payment_param
+      return {} unless params.has_key?(:payment)
+
+      @voucher_params ||= params.require(:payment).permit(:pix, :credit_card)
     end
   end
 end

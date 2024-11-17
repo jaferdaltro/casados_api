@@ -1,6 +1,8 @@
 module API::V1
   class VouchersController < BaseController
     def create
+      return unless current_user.is_coordinator?
+
       code = Voucher.generate_code
       voucher = ::Voucher.create!(
         code: code,
@@ -9,12 +11,6 @@ module API::V1
         user_id: current_user.id
       )
       render json: voucher
-    end
-
-    private
-
-    def voucher_params
-      params.require(:voucher).permit(:code)
     end
   end
 end
