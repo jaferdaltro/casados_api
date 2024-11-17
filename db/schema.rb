@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_17_182308) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -36,6 +36,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.text "reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: false
+    t.string "religion"
+    t.integer "children_quantity"
+    t.text "days_availability", array: true
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
     t.index ["wife_id"], name: "index_marriages_on_wife_id"
@@ -69,7 +73,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_203019) do
     t.date "birth_at"
     t.string "tshirt_size"
     t.bigint "address_id"
-    t.string "role", default: "student"
+    t.integer "role", default: 0
     t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
