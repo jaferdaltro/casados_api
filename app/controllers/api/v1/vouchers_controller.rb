@@ -3,14 +3,9 @@ module API::V1
     def create
       return unless current_user.is_coordinator?
 
-      code = Voucher.generate_code
-      voucher = ::Voucher.create!(
-        code: code,
-        is_available: true,
-        expiration_at: Time.now + 3.days,
-        user_id: current_user.id
-      )
-      render json: voucher
+      vouchers = Voucher::Generate.list(current_user.id, params[:amount])
+
+      render json: vouchers
     end
   end
 end
