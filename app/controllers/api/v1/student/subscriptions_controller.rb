@@ -3,6 +3,8 @@ module API::V1
     def create
       if Voucher.is_valide?(voucher)
        ::Marriage.create_marriage(husband_params, wife_params, marriage_params)
+       charge = GenerateQrCodeJob.perform_now if is_pix?
+       render json: charge, status: :ok
       else
         render_json_with_error(status: :unprocessable_entity, message: "Voucher inválido")
       end
@@ -21,13 +23,7 @@ module API::V1
     end
 
     def is_pix?
-      debugger
-      payment_param[:payment][:pix] == true
-    end
-
-    def pix
-      assas = AsaasPixCharge.new
-      assas.create
+      params[:payment][:pix]
     end
 
     def credit_card
@@ -39,14 +35,12 @@ module API::V1
       elsif is_credit_card?
         # TODO
       else
+        debugger
         render_json_with_error(status: :unprocessable_entity, message: "Pagamento inválido")
       end
     end
 
     def build_user(params)
-      # student_password = "123456"
-      # password = { password: student_password, password_confirmation: student_password }
-      # user = ::User.new(params.merge(password))
       user = ::User.new(params)
       user.valid?
     end
@@ -105,7 +99,7 @@ module API::V1
     def payment_param
       return {} unless params.has_key?(:payment)
 
-      @voucher_params ||= params.require(:payment).permit(:pix, :credit_card)
+      @payment_params ||= params.require(:payment).permit(:pix, :credit_card)
     end
   end
 end
