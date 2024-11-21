@@ -15,6 +15,9 @@ Rails.application.routes.draw do
         resources :registrations, only: [ :create ]
         resources :sessions, only: [ :create, :destroy ]
       end
+      namespace :payment do
+        resources :webhooks, only: [ :create ]
+      end
     end
   end
 end

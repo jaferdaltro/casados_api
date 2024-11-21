@@ -39,8 +39,8 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
-  # Use dotenv for environment variables
-  gem "dotenv", "~> 3.1", ">= 3.1.4"
+  # Use dotenv-rails for environment variables
+  gem "dotenv-rails", "~> 2.1", ">= 2.1.1"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
