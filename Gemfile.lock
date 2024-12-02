@@ -84,6 +84,7 @@ GEM
     builder (3.3.0)
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
+    cpf_cnpj (1.0.1)
     crass (1.0.6)
     date (3.3.4)
     debug (1.9.2)
@@ -250,6 +251,8 @@ GEM
     timeout (0.4.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    ultrahook (0.1.5)
+      json (>= 1.8.0)
     unicode-display_width (2.6.0)
     useragent (0.16.10)
     webrick (1.8.2)
@@ -270,6 +273,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   brakeman
+  cpf_cnpj (~> 1.0, >= 1.0.1)
   debug
   dockerfile-rails (>= 1.6)
   dotenv-rails (~> 2.1, >= 2.1.1)
@@ -281,6 +285,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   solid_queue (~> 1.0)
   tzinfo-data
+  ultrahook (~> 0.1.4)
 
 BUNDLED WITH
    2.5.16
