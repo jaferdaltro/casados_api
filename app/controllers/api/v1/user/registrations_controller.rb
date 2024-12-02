@@ -6,8 +6,7 @@ module API::V1
       if user.save
         render_json_with_success(status: :ok)
       else
-        # debugger
-        render_json_with_error(status: :unprocessable_entity, message: user.errors.full_messages)
+        render_error(status: :unprocessable_entity, message: user.errors.full_messages)
       end
     end
 
@@ -15,7 +14,7 @@ module API::V1
     private
 
     def registrations_params
-      params.require(:user).permit(:name, :phone, :email, :password, :password_confirmation)
+      params.require(:user).permit(:name, :phone, :email, :cpf, :password, :password_confirmation)
     end
   end
 end

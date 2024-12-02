@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
   rescue_from ActionController::ParameterMissing do |exception|
-    render_json_with_error(status: :bad_request, message: exception.message)
+    render_error(status: :bad_request, message: exception.message)
   end
 
   rescue_from StandardError do |exception|
@@ -8,7 +8,7 @@ class ApplicationController < ActionController::API
 
     message = Rails.env.production? ? "Erro interno" : exception.message
 
-    render_json_with_error(status: :internal_server_error, message:)
+    render_error(status: :internal_server_error, message:)
   end
 
   protected
@@ -16,7 +16,7 @@ class ApplicationController < ActionController::API
   def authenticate_user!
     return if current_user
 
-    render_json_with_error(status: :unauthorized, message: "Não autorizado")
+    render_error(status: :unauthorized, message: "Não autorizado")
   end
 
   def logged_in?
@@ -41,7 +41,7 @@ class ApplicationController < ActionController::API
     render status:, json:
   end
 
-  def render_json_with_error(status:, message:, details: {})
+  def render_error(status:, message:, details: {})
     render status:, json: { status: :error, message:, details: }
   end
 
@@ -54,6 +54,6 @@ class ApplicationController < ActionController::API
   #   message = record.errors.full_messages.join(", ")
   #   details = record.errors.message
 
-  #   render_json_with_error(status: :unprocessable_entity, message:, details:)
+  #   render_error(status: :unprocessable_entity, message:, details:)
   # end
 end

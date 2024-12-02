@@ -7,7 +7,7 @@ module API::V1
           log_in(user)
           render_json_with_success(status: :ok)
         else
-          render_json_with_error(status: :unauthorized, message: "Usuário ou senha invalidos")
+          render_error(status: :unauthorized, message: "Usuário ou senha invalidos")
         end
       end
 
