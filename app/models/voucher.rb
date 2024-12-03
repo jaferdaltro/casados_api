@@ -1,7 +1,11 @@
 class Voucher < ApplicationRecord
   validates :code, presence: true, uniqueness: true
 
-  def self.is_valide?(voucher)
-    voucher.is_available && voucher.expiration_at >= DateTime.now
+  def is_valide?
+    is_available && expiration_at >= DateTime.now && has_life?
+  end
+
+  def has_life?
+    lives > 0
   end
 end

@@ -3,7 +3,7 @@ module API::V1
     def create
       return unless current_user.is_coordinator?
 
-      vouchers = Voucher::Generate.list(current_user.id, params[:amount])
+      vouchers = Voucher::Generate.list(current_user.id, params[:amount], params[:lives])
 
       render json: vouchers
     end
