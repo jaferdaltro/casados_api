@@ -11,7 +11,7 @@ class Marriage < ApplicationRecord
       marriage = ::Marriage.new(husband_id: husband.id,
                                 wife_id: wife.id,
                                 is_member: marriage_params[:is_member],
-                                registred_by: marriage_params[:registred_by],
+                                registered_by: marriage_params[:registered_by],
                                 reason: marriage_params[:reason],
                                 religion: marriage_params[:religion],
                                 children_quantity: marriage_params[:children_quantity],

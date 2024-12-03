@@ -13,7 +13,7 @@ module API::V1
     def index
       render json: ::Marriage.all,
       include: [ :husband, :wife ],
-      fields: { marriages: [ :id, :is_member, :registred_by, :reason ] }
+      fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
     end
 
     private
@@ -82,7 +82,7 @@ module API::V1
 
       @marriage_params ||= params.require(:marriage).permit(
         :is_member,
-        :registred_by,
+        :registered_by,
         :religion,
         :reason,
         :children_quantity,
