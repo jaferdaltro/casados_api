@@ -3,10 +3,11 @@ class CreateMarriages < ActiveRecord::Migration[7.2]
     create_table :marriages do |t|
       t.integer :husband_id
       t.integer :wife_id
-      t.boolean :is_member
-      t.string :campus
-      t.string :registred_by
+      t.string :registered_by
       t.text :reason
+      t.boolean :active, default: false
+      t.integer :children_quantity
+      t.text :days_availability, array: true
 
       t.timestamps
     end

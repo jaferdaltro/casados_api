@@ -5,6 +5,7 @@ class CreateVouchers < ActiveRecord::Migration[7.2]
       t.boolean :is_available, default: true
       t.datetime :expiration_at, null: false
       t.integer :user_id, null: false
+      t.integer :lives, default: 1
 
       t.timestamps
     end
