@@ -3,7 +3,6 @@ module API::V1
     def create
       if Voucher.is_valide?(voucher)
        ::Marriage.create_marriage(husband_params, wife_params, marriage_params)
-       charge = GenerateQrCodeJob.perform_now if is_pix?
        render json: charge, status: :ok
       else
         render_json_with_error(status: :unprocessable_entity, message: "Voucher inválido")

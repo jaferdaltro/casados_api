@@ -35,8 +35,6 @@ gem "dockerfile-rails", ">= 1.6", group: :development
 
 gem "redis", "~> 5.3"
 
-gem "solid_queue", "~> 1.0"
-
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
