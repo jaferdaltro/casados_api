@@ -9,13 +9,14 @@ module Voucher::Generate
 
   private
 
-  def self.create(user_id)
+  def self.create_code(user_id, days: 1, lives: 1)
     code = generate_code
     Voucher.create(
       code: code,
       is_available: true,
-      expiration_at: Time.now + 3.days,
-      user_id: user_id
+      expiration_at: Time.now + days.days,
+      user_id: user_id,
+      lives: lives
     )
   end
   def self.generate_code
