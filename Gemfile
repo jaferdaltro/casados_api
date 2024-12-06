@@ -35,6 +35,8 @@ gem "dockerfile-rails", ">= 1.6", group: :development
 
 gem "redis", "~> 5.3"
 
+gem "faker", "~> 3.4", ">= 3.4.2"
+
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
