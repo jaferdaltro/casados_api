@@ -32,6 +32,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
     t.integer "wife_id"
     t.string "registered_by"
     t.text "reason"
+    t.boolean "is_member"
+    t.string "campus"
+    t.string "religion"
     t.boolean "active", default: false
     t.integer "children_quantity"
     t.text "days_availability", array: true
@@ -66,9 +69,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
     t.date "birth_at"
     t.integer "role", default: 0
     t.string "gender"
-    t.boolean "is_member"
-    t.string "campus"
-    t.string "religion"
     t.string "t_shirt_size"
     t.string "password_digest", null: false
     t.datetime "created_at", null: false

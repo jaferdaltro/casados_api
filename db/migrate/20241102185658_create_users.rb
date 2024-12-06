@@ -8,9 +8,6 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.date :birth_at
       t.integer :role, default: 0
       t.string :gender
-      t.boolean :is_member
-      t.string :campus
-      t.string :religion
       t.string :t_shirt_size
       t.string :password_digest, null: false
 

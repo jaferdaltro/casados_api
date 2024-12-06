@@ -39,10 +39,6 @@ module API::V1
         :cpf,
         :email,
         :birth_at,
-        :t_shirt_size,
-        :is_member,
-        :campus,
-        :religion
       ).with_defaults(
           password: "123456",
           password_confirmation: "123456"
@@ -58,10 +54,6 @@ module API::V1
         :cpf,
         :email,
         :birth_at,
-        :t_shirt_size,
-        :is_member,
-        :campus,
-        :religion
       ).with_defaults(
         password: "123456",
         password_confirmation: "123456"
@@ -73,6 +65,8 @@ module API::V1
 
       @marriage_params ||= params.require(:marriage).permit(
         :registered_by,
+        :is_member,
+        :campus,
         :religion,
         :reason,
         :children_quantity,

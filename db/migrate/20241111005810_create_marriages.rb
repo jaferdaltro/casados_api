@@ -5,6 +5,9 @@ class CreateMarriages < ActiveRecord::Migration[7.2]
       t.integer :wife_id
       t.string :registered_by
       t.text :reason
+      t.boolean :is_member
+      t.string :campus
+      t.string :religion
       t.boolean :active, default: false
       t.integer :children_quantity
       t.text :days_availability, array: true
