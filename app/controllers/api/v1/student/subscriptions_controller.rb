@@ -1,11 +1,15 @@
 module API::V1
   class Student::SubscriptionsController < ApplicationController
     def create
-      if Voucher.is_valide?(voucher)
-       ::Marriage.create_marriage(husband_params, wife_params, marriage_params)
-       render json: charge, status: :ok
-      else
-        render_json_with_error(status: :unprocessable_entity, message: "Voucher inválido")
+      begin
+        @marriage = Marriage.create_marriage(
+          husband_params,
+          wife_params,
+          marriage_params
+        )
+        render json: @marriage, status: :created
+      rescue ActiveRecord::RecordInvalid => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
     end
 
@@ -19,24 +23,6 @@ module API::V1
 
     def voucher
       ::Voucher.find_by(code: voucher_params[:code])
-    end
-
-    def is_pix?
-      params[:payment][:pix]
-    end
-
-    def credit_card
-    end
-
-    def create_charge
-      if is_pix?
-        pix
-      elsif is_credit_card?
-        # TODO
-      else
-        debugger
-        render_json_with_error(status: :unprocessable_entity, message: "Pagamento inválido")
-      end
     end
 
     def build_user(params)
@@ -53,7 +39,10 @@ module API::V1
         :cpf,
         :email,
         :birth_at,
-        :tshirt_size
+        :t_shirt_size,
+        :is_member,
+        :campus,
+        :religion
       ).with_defaults(
           password: "123456",
           password_confirmation: "123456"
@@ -69,7 +58,10 @@ module API::V1
         :cpf,
         :email,
         :birth_at,
-        :tshirt_size
+        :t_shirt_size,
+        :is_member,
+        :campus,
+        :religion
       ).with_defaults(
         password: "123456",
         password_confirmation: "123456"
@@ -80,25 +72,18 @@ module API::V1
       return {} unless params.has_key?(:marriage)
 
       @marriage_params ||= params.require(:marriage).permit(
-        :is_member,
         :registered_by,
         :religion,
         :reason,
         :children_quantity,
         days_availability: []
-      ).with_defaults(active: false)
+      )
     end
 
     def voucher_params
       return {} unless params.has_key?(:voucher)
 
       @voucher_params ||= params.require(:voucher).permit(:code)
-    end
-
-    def payment_param
-      return {} unless params.has_key?(:payment)
-
-      @payment_params ||= params.require(:payment).permit(:pix, :credit_card)
     end
   end
 end
