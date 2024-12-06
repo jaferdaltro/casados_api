@@ -5,7 +5,7 @@ module API::V1
         user = ::User.find_by_phone(params[:session][:phone])
         if user && user.authenticate(params[:session][:password])
           log_in(user)
-          render_json_with_success(status: :ok)
+          render_success(status: :ok)
         else
           render_error(status: :unauthorized, message: "Usuário ou senha invalidos")
         end
@@ -13,7 +13,7 @@ module API::V1
 
       def destroy
         log_out
-        render_json_with_success(status: :see_other)
+        render_success(status: :see_other)
       end
 
       private

@@ -4,7 +4,7 @@ module API::V1
       user = ::User.new(registrations_params)
 
       if user.save
-        render_json_with_success(status: :ok)
+        render_success(status: :ok)
       else
         render_error(status: :unprocessable_entity, message: user.errors.full_messages)
       end

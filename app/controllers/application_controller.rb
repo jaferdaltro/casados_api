@@ -36,7 +36,7 @@ class ApplicationController < ActionController::API
     # end
   end
 
-  def render_json_with_success(status:)
+  def render_success(status:)
     json = { status: :success }
     render status:, json:
   end
