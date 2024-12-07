@@ -1,69 +1,46 @@
-# fly.toml app configuration file generated for casados-api-db on 2024-12-06T23:06:44-03:00
+# fly.toml app configuration file generated for casados-api on 2024-11-16T09:44:46-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'casados-api-db'
+app = 'casados-api'
 primary_region = 'gig'
+console_command = '/rails/bin/rails console'
 
-[env]
-  PRIMARY_REGION = 'gig'
+[build]
 
-[[mounts]]
-  source = 'pg_data'
-  destination = '/data'
+[deploy]
+  release_command = './bin/rails db:prepare'
 
-[[services]]
-  protocol = 'tcp'
-  internal_port = 5432
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
-
-  [[services.ports]]
-    port = 5432
-    handlers = ['pg_tls']
-
-  [services.concurrency]
-    type = 'connections'
-    hard_limit = 1000
-    soft_limit = 1000
-
-[[services]]
-  protocol = 'tcp'
-  internal_port = 5433
-  auto_start_machines = true
-
-  [[services.ports]]
-    port = 5433
-    handlers = ['pg_tls']
-
-  [services.concurrency]
-    type = 'connections'
-    hard_limit = 1000
-    soft_limit = 1000
+  min_machines_running = 0
+  processes = ['app']
 
 [checks]
-  [checks.pg]
-    port = 5500
+  [checks.status]
+    port = 3000
     type = 'http'
-    interval = '15s'
-    timeout = '10s'
-    path = '/flycheck/pg'
+    interval = '10s'
+    timeout = '2s'
+    grace_period = '5s'
+    method = 'GET'
+    path = '/up'
+    protocol = 'http'
+    tls_skip_verify = false
 
-  [checks.role]
-    port = 5500
-    type = 'http'
-    interval = '15s'
-    timeout = '10s'
-    path = '/flycheck/role'
+    [checks.status.headers]
+      X-Forwarded-Proto = 'https'
 
-  [checks.vm]
-    port = 5500
-    type = 'http'
-    interval = '15s'
-    timeout = '10s'
-    path = '/flycheck/vm'
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
 
-[[metrics]]
-  port = 9187
-  path = '/metrics'
-  https = false
+[[statics]]
+  guest_path = '/rails/public'
+  url_prefix = '/'
+  
