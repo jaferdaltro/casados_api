@@ -61,3 +61,5 @@ storage/
 
 # Master key
 config/master.key
+
+/config/credentials/production.key
