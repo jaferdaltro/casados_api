@@ -30,6 +30,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
   create_table "marriages", force: :cascade do |t|
     t.integer "husband_id"
     t.integer "wife_id"
+    t.integer "address_id"
     t.string "registered_by"
     t.boolean "dinner_participation", default: false
     t.text "reason"
@@ -41,6 +42,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
     t.text "days_availability", array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
     t.index ["wife_id"], name: "index_marriages_on_wife_id"
@@ -74,8 +76,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "address_id"
-    t.index ["address_id"], name: "index_users_on_address_id"
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 
@@ -91,5 +91,4 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
   end
 
   add_foreign_key "user_tokens", "users"
-  add_foreign_key "users", "addresses"
 end

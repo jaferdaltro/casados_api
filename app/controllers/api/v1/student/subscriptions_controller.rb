@@ -5,6 +5,7 @@ module API::V1
         @marriage = Marriage.create_marriage(
           husband_params,
           wife_params,
+          address_params,
           marriage_params
         )
         render json: @marriage, status: :created
@@ -25,9 +26,10 @@ module API::V1
       ::Voucher.find_by(code: voucher_params[:code])
     end
 
-    def build_user(params)
-      user = ::User.new(params)
-      user.valid?
+    def address_params
+      return {} unless params.has_key?(:address)
+
+      params.require(:address).permit(:street, :number, :neighborhood, :city, :state, :cep)
     end
 
     def husband_params
