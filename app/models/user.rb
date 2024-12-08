@@ -12,14 +12,24 @@ class User < ApplicationRecord
                     format: { with: VALID_PHONE_REGEX, message: "O número de telefone é inválido, ex: 85 99999 9999" },
                      uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }
+  validates :cpf, presence: true, uniqueness: true
+
+  validate :correct_cpf
 
   normalizes :phone, with: -> { _1.tr("()", "").tr("-", "").gsub(/\s+/, "") }
 
   scope :find_by_phone, ->(phone) { find_by(phone: phone) }
 
+  scope :find_by_cpf, ->(cpf) { find_by(cpf: cpf) }
+
   enum :role, %i[ student co_leader leader coordinator ], prefix: true, default: :student
 
+  private
   def is_coordinator?
     role == "coordinator"
+  end
+
+  def correct_cpf
+    errors.add(:cpf, "CPF inválido") unless CPF.valid?(cpf)
   end
 end
