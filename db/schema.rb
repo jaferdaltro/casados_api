@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_08_144545) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,6 +42,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_170837) do
     t.text "days_availability", array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "uuid"
     t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"

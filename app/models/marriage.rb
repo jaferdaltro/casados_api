@@ -16,6 +16,7 @@ class Marriage < ApplicationRecord
       wife = User.create!(wife_params)
       address = Address.create!(address_params)
       create!(
+        uuid: SecureRandom.uuid,
         husband_id: husband.id,
         wife_id: wife.id,
         address_id: address.id,

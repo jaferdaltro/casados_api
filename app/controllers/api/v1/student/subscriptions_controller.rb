@@ -8,7 +8,7 @@ module API::V1
           address_params,
           marriage_params
         )
-        render json: @marriage, status: :created
+        render json: { marriage: @marriage }, status: :created
       rescue ActiveRecord::RecordInvalid => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
