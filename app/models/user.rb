@@ -7,6 +7,7 @@ class User < ApplicationRecord
 
   has_one :token, class_name: "UserToken", dependent: :destroy
 
+  validates :name, presence: true
   validates :phone, presence: true,
                     length: { is: 11 },
                     format: { with: VALID_PHONE_REGEX, message: "O número de telefone é inválido, ex: 85 99999 9999" },
@@ -14,7 +15,7 @@ class User < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }
   validates :cpf, presence: true, uniqueness: true
 
-  validate :correct_cpf
+  validate :user_should_have_correct_cpf
 
   normalizes :phone, with: -> { _1.tr("()", "").tr("-", "").gsub(/\s+/, "") }
 
@@ -22,14 +23,15 @@ class User < ApplicationRecord
 
   scope :find_by_cpf, ->(cpf) { find_by(cpf: cpf) }
 
-  enum :role, %i[ student co_leader leader coordinator ], prefix: true, default: :student
+  enum :role, [ :student, :co_leader, :leader, :coordinator ], prefix: true, default: :student
 
-  private
   def is_coordinator?
     role == "coordinator"
   end
 
-  def correct_cpf
+  private
+
+  def user_should_have_correct_cpf
     errors.add(:cpf, "CPF inválido") unless CPF.valid?(cpf)
   end
 end
