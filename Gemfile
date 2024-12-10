@@ -52,4 +52,10 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "ultrahook", "~> 0.1.4"
+
+  gem "factory_bot_rails", "~> 6.4", ">= 6.4.4"
+
+  gem "shoulda-matchers", "~> 6.4"
+
+  gem "rspec-rails", "~> 7.1"
 end
