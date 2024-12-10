@@ -5,10 +5,10 @@ class Marriage < ApplicationRecord
 
   has_one :student_subscription
 
-  validates :husband_id, :wife_id, :is_member, :campus, :religion, :reason,
-            :registered_by, :children_quantity, :days_availability, presence: true
+  validates :husband_id, :wife_id, :is_member,
+            :days_availability, presence: true
 
-  validate :different_users
+  validate :should_be_different_users
 
   def self.create_marriage(husband_params, wife_params, address_params, marriage_params)
     transaction do
@@ -35,9 +35,7 @@ class Marriage < ApplicationRecord
 
   private
 
-  def different_users
-    if husband_id == wife_id
-      errors.add(:base, "Marido e esposa devem ser usuários diferentes")
-    end
+  def should_be_different_users
+    errors.add(:base, "Marido e esposa devem ser usuários diferentes") if husband_id == wife_id
   end
 end
