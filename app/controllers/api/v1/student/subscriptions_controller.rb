@@ -38,7 +38,7 @@ module API::V1
     end
 
     def search
-      marriage = ::Marriage.find_by_phone(params[:phone])
+      marriage = ::Marriage.by_phone(params[:phone])
       render json: marriage,
       include: [ :husband, :wife, :address ],
       fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
