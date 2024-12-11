@@ -1,5 +1,15 @@
 module API::V1
   class Student::SubscriptionsController < ApplicationController
+    def edit
+      couple_phone = husband_params[:phone] || wife_params[:phone]
+      marriage = ::Marriage.find_by_phone(couple_phone)
+      render json: marriage,
+      include: [ :husband, :wife ],
+      fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: e.message }, status: :not_found
+    end
+
     def create
       begin
         @marriage = Marriage.create_marriage(
@@ -12,6 +22,15 @@ module API::V1
       rescue ActiveRecord::RecordInvalid => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
+    end
+
+    def search
+      marriage = ::Marriage.find_by_phone(params[:phone])
+      render json: marriage,
+      include: [ :husband, :wife, :address ],
+      fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: e.message }, status: :not_found
     end
 
     def index

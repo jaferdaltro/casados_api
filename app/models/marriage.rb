@@ -10,6 +10,8 @@ class Marriage < ApplicationRecord
 
   validate :should_be_different_users
 
+  scope :find_by_phone, ->(phone) { joins(:husband, :wife).where(husband: { phone: phone }, wife: { phone: phone }).first }
+
   def self.create_marriage(husband_params, wife_params, address_params, marriage_params)
     transaction do
       husband = User.create!(husband_params)
