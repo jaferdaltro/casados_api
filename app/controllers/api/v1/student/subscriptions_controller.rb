@@ -11,14 +11,27 @@ module API::V1
     end
 
     def create
-      begin
-        @marriage = Marriage.create_marriage(
-          husband_params,
-          wife_params,
-          address_params,
-          marriage_params
+      ActiveRecord::Base.transaction do
+        husband = ::User.create(husband_params)
+        wife = ::User.create(wife_params)
+        address = ::Address.create(address_params)
+        marriage = Marriage.new(
+          husband: husband,
+          wife: wife,
+          address: address,
+          registered_by: marriage_params[:registered_by],
+          is_member: marriage_params[:is_member],
+          campus: marriage_params[:campus],
+          religion: marriage_params[:religion],
+          reason: marriage_params[:reason],
+          children_quantity: marriage_params[:children_quantity],
+          days_availability: marriage_params[:days_availability]
         )
-        render json: { marriage: @marriage }, status: :created
+        if marriage.save
+          render json: { marriage: marriage }, status: :created
+        else
+          render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
+        end
       rescue ActiveRecord::RecordInvalid => e
         render json: { error: e.message }, status: :unprocessable_entity
       end
