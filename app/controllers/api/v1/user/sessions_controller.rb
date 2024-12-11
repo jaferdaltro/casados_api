@@ -5,14 +5,14 @@ module API::V1
         user = ::User.find_by(cpf: params[:session][:cpf])
         if user && user.authenticate(params[:session][:password])
           log_in(user)
-          render_success(status: :ok)
+          render json: { user: user }, status: :ok
         else
           render_error(status: :unauthorized, message: "Usuário ou senha inválidos")
         end
       end
 
       def destroy
-        log_out
+        log_out if logged_in?
         render_success(status: :see_other)
       end
     end
