@@ -25,6 +25,8 @@ class User < ApplicationRecord
 
   enum :role, [ :student, :co_leader, :leader, :coordinator ], prefix: true, default: :student
 
+  enum :gender, [ :male, :female ], prefix: true
+
   def is_coordinator?
     role == "coordinator"
   end

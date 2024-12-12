@@ -1,12 +1,11 @@
 class Marriage < ApplicationRecord
   belongs_to :husband, class_name: "User"
   belongs_to :wife, class_name: "User"
-  belongs_to :address
+  belongs_to :address, optional: true
 
   has_one :student_subscription
 
-  validates :husband_id, :wife_id, :is_member,
-            :days_availability, presence: true
+  validates :husband_id, :wife_id,  presence: true
 
   validate :should_be_different_users
 
