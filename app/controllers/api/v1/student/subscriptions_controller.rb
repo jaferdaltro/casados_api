@@ -1,13 +1,15 @@
 module API::V1
   class Student::SubscriptionsController < ApplicationController
-    def edit
-      couple_phone = husband_params[:phone] || wife_params[:phone]
-      marriage = ::Marriage.find_by_phone(couple_phone)
-      render json: marriage,
-      include: [ :husband, :wife ],
-      fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
-    rescue ActiveRecord::RecordNotFound => e
-      render json: { error: e.message }, status: :not_found
+    def update
+      marriage = ::Marriage.find(params[:id])
+      marriage.husband.update(husband_params)
+      marriage.wife.update(wife_params)
+      marriage.address.update(address_params)
+      if marriage.update(marriage_params)
+        render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :ok
+      else
+        render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
+      end
     end
 
     def create

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :vouchers, only: [ :create ]
       namespace :student do
-        resources :subscriptions, only: [ :create, :index, :edit ] do
+        resources :subscriptions, only: [ :create, :index, :update ] do
           collection do
             get :search
           end
