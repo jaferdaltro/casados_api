@@ -2,6 +2,7 @@ module API::V1
   class Student::SubscriptionsController < ApplicationController
     def update
       marriage = ::Marriage.find(params[:id])
+      # debugger
       marriage.husband.update(husband_params)
       marriage.wife.update(wife_params)
       marriage.address.update(address_params)
