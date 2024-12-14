@@ -17,7 +17,7 @@ namespace :fix_days_availability do
       next if marriage.days_availability&.blank? || marriage.days_availability&.compact.blank?
       days = marriage.days_availability.map { |day| previous_days[day] }
       if marriage.update(days_availability: days)
-        puts "Updating days availability for marriage #{marriage.husband.name} - #{marriage.days_availability}"
+        puts "Updating days availability for marriage #{marriage.husband&.name} - #{marriage&.days_availability}"
         count += 1
       end
     end
