@@ -2,29 +2,19 @@ namespace :fix_days_availability do
   desc "Fix the days availability"
   task days: :environment do
     count = 0
-    # previous_days = {
-    #   "monday" => "sunday",
-    #   "tuesday" => "monday",
-    #   "wednesday" => "tuesday",
-    #   "thursday" => "wednesday",
-    #   "friday" => "thursday",
-    #   "saturday" => "friday",
-    #   "sunday" => "saturday"
-    # }
     previous_days = {
-      "monday" => "tuesday",
-      "tuesday" => "wednesday",
-      "wednesday" => "thursday",
-      "thursday" => "friday",
-      "friday" => "saturday",
-      "saturday" => "sunday",
-      "sunday" => "monday"
+      "monday" => "sunday",
+      "tuesday" => "monday",
+      "wednesday" => "tuesday",
+      "thursday" => "wednesday",
+      "friday" => "thursday",
+      "saturday" => "friday",
+      "sunday" => "saturday"
     }
     puts "Number of marriages:
      #{Marriage.count} marriages..."
     Marriage.all.each do |marriage|
-      next if marriage.days_availability.empty? || marriage.days_availability.nil? || marriage.days_availability.compact.empty?
-      # next if marriage.days_availability&.blank? || marriage.days_availability&.compact.blank? || marriage.updated_at < 1.hour.ago
+      next if marriage.days_availability&.blank? || marriage.days_availability&.compact.blank?
       days = marriage.days_availability.map { |day| previous_days[day] }
       if marriage.update(days_availability: days)
         puts "Updating days availability for marriage #{marriage.husband.name} - #{marriage.days_availability}"
