@@ -34,11 +34,13 @@ module API::V1
     rescue InvalidHusbandError => e
       render json: { error: husband.errors.full_messages }, status: :unprocessable_entity
     rescue InvalidWifeError => e
-      render json: { error: wife.errors.message }, status: :unprocessable_entity
+      render json: { error: wife.errors.full_messages }, status: :unprocessable_entity
     rescue InvalidAddressError => e
-      render json: { error: address.errors.message }, status: :unprocessable_entity
+      render json: { error: address.errors.full_messages }, status: :unprocessable_entity
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      render json: { error: e.message }, status: :unprocessable_entity
     end
 
     def update
