@@ -13,7 +13,6 @@ module API::V1
       raise InvalidAddressError unless address.valid?
 
       if husband.save && wife.save && address.save
-        debugger
         marriage = Marriage.new(
           husband: husband,
           wife: wife,
