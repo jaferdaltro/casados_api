@@ -1,23 +1,18 @@
 module API::V1
   class Student::SubscriptionsController < ApplicationController
-    def update
-      marriage = ::Marriage.find(params[:id])
-      # debugger
-      marriage.husband.update(husband_params)
-      marriage.wife.update(wife_params)
-      marriage.address.update(address_params)
-      if marriage.update(marriage_params)
-        render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :ok
-      else
-        render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
-      end
-    end
+    InvalidHusbandError = Class.new(StandardError)
+    InvalidWifeError = Class.new(StandardError)
+    InvalidAddressError = Class.new(StandardError)
 
     def create
-      ActiveRecord::Base.transaction do
-        husband = ::User.create(husband_params)
-        wife = ::User.create(wife_params)
-        address = ::Address.create(address_params)
+      husband = ::User.new(husband_params)
+      wife = ::User.new(wife_params)
+      address = ::Address.new(address_params)
+      raise InvalidHusbandError unless husband.valid?
+      raise InvalidWifeError unless wife.valid?
+      raise InvalidAddressError unless address.valid?
+
+      if husband.save && wife.save && address.save
         marriage = Marriage.new(
           husband: husband,
           wife: wife,
@@ -31,12 +26,29 @@ module API::V1
           days_availability: marriage_params[:days_availability]
         )
         if marriage.save
-          render json: { marriage: marriage }, status: :created
+          render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :created
         else
-          render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
+          render json: { error: marriage.errors.full_messages }, status: :unprocessable_entity
         end
-      rescue ActiveRecord::RecordInvalid => e
-        render json: { error: e.message }, status: :unprocessable_entity
+      end
+    rescue InvalidHusbandError => e
+      render json: { error: husband.errors.full_messages }, status: :unprocessable_entity
+    rescue InvalidWifeError => e
+      render json: { error: wife.errors.message }, status: :unprocessable_entity
+    rescue InvalidAddressError => e
+      render json: { error: address.errors.message }, status: :unprocessable_entity
+    end
+
+    def update
+      marriage = ::Marriage.find(params[:id])
+      # debugger
+      marriage.husband.update(husband_params)
+      marriage.wife.update(wife_params)
+      marriage.address.update(address_params)
+      if marriage.update(marriage_params)
+        render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :ok
+      else
+        render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
       end
     end
 
