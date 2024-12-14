@@ -2,6 +2,8 @@ class User < ApplicationRecord
   VALID_PHONE_REGEX = /\A\(?([0-9]{2})\)?[-. ]?([0-9]{4,5})[-. ]?([0-9]{4})\z/
   has_secure_password
 
+  after_initialize :insert_password
+
   has_one :marriage, foreign_key: :wife_id, dependent: :destroy
   has_one :membership, dependent: :destroy
 
@@ -32,6 +34,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def insert_password
+    self.password ||= "123456"
+  end
 
   def user_should_have_correct_cpf
     errors.add(:cpf, "CPF inválido") unless CPF.valid?(cpf)

@@ -6,7 +6,7 @@ class ApplicationController < ActionController::API
   rescue_from StandardError do |exception|
     Rails.error.report(exception)
 
-    message = Rails.env.production? ? "Erro interno" : exception.message
+    message = exception.message
 
     render_error(status: :internal_server_error, message:)
   end
