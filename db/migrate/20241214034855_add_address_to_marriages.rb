@@ -1,9 +1,9 @@
 class AddAddressToMarriages < ActiveRecord::Migration[7.2]
   def up
-    add_reference :marriages, :address, null: false, foreign_key: true
+    add_column :marriages, :address_id, :integer
   end
 
   def down
-    remove_reference :marriages, :address, null: false, foreign_key: true
+    remove_column :marriages, :address_id
   end
 end
