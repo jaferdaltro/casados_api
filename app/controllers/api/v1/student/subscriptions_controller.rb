@@ -37,6 +37,8 @@ module API::V1
       render json: { error: wife.errors.message }, status: :unprocessable_entity
     rescue InvalidAddressError => e
       render json: { error: address.errors.message }, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
     end
 
     def update
