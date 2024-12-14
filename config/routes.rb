@@ -16,7 +16,7 @@ Rails.application.routes.draw do
         end
       end
       namespace :user do
-        resources :registrations, only: [ :create ]
+        resources :registrations, only: [ :create, :update ]
         resources :sessions, only: [ :create, :destroy ]
       end
     end

@@ -16,7 +16,7 @@ module API::V1
         marriage = Marriage.new(
           husband: husband,
           wife: wife,
-          address: address,
+          address_id: address.id,
           registered_by: marriage_params[:registered_by],
           is_member: marriage_params[:is_member],
           campus: marriage_params[:campus],
