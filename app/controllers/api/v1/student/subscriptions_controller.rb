@@ -26,7 +26,7 @@ module API::V1
           days_availability: marriage_params[:days_availability]
         )
         if marriage.save
-          render json: { marriage: marriage }, include: [ :husband, :wife ], status: :created
+          render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :created
         else
           render json: { error: marriage.errors.full_messages }, status: :unprocessable_entity
         end
