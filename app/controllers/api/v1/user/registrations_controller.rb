@@ -22,6 +22,8 @@ module API::V1
     def search
       users = ::User.find_by_phone(params[:phone])
       render json: { users: users }, status: :ok
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: e.message }, status: :not_found
     end
 
 
