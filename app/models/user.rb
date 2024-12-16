@@ -21,10 +21,6 @@ class User < ApplicationRecord
 
   normalizes :phone, with: -> { _1.tr("()", "").tr("-", "").gsub(/\s+/, "") }
 
-  scope :find_by_phone, ->(phone) { find_by(phone: phone) }
-
-  scope :find_by_cpf, ->(cpf) { find_by(cpf: cpf) }
-
   enum :role, [ :student, :co_leader, :leader, :coordinator ], prefix: true, default: :student
 
   enum :gender, [ :male, :female ], prefix: true

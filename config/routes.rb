@@ -16,7 +16,11 @@ Rails.application.routes.draw do
         end
       end
       namespace :user do
-        resources :registrations, only: [ :create, :update ]
+        resources :registrations, only: [ :create, :update ] do
+          collection do
+            get :search
+          end
+        end
         resources :sessions, only: [ :create, :destroy ]
       end
     end

@@ -19,6 +19,11 @@ module API::V1
       end
     end
 
+    def search
+      users = ::User.find_by_phone(params[:phone])
+      render json: { users: users }, status: :ok
+    end
+
 
     private
 
