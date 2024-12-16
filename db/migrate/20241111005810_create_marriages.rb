@@ -3,7 +3,6 @@ class CreateMarriages < ActiveRecord::Migration[7.2]
     create_table :marriages do |t|
       t.integer :husband_id
       t.integer :wife_id
-      t.integer :address_id
       t.string :registered_by
       t.boolean :dinner_participation, default: false
       t.text :reason
@@ -18,7 +17,6 @@ class CreateMarriages < ActiveRecord::Migration[7.2]
     end
     add_index :marriages, :husband_id
     add_index :marriages, :wife_id
-    add_index :marriages, :address_id
     add_index :marriages, [ :husband_id, :wife_id ], unique: true
   end
 end

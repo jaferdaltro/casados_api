@@ -15,7 +15,7 @@ class User < ApplicationRecord
                     format: { with: VALID_PHONE_REGEX, message: "O número de telefone é inválido, ex: 85 99999 9999" },
                      uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }
-  validates :cpf, presence: true, uniqueness: true
+  validates :cpf, uniqueness: true
 
   validate :user_should_have_correct_cpf
 
