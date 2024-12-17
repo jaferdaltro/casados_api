@@ -20,6 +20,7 @@ class User < ApplicationRecord
   validate :user_should_have_correct_cpf
 
   normalizes :phone, with: -> { _1.tr("()", "").tr("-", "").gsub(/\s+/, "") }
+  normalizes :cpf, with: -> { _1.gsub(/[.-]/, "") }
 
   enum :role, [ :student, :co_leader, :leader, :coordinator ], prefix: true, default: :student
 
