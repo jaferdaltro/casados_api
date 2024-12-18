@@ -37,6 +37,8 @@ class User < ApplicationRecord
   end
 
   def user_should_have_correct_cpf
+    return if cpf.blank?
+
     errors.add(:cpf, "CPF inválido") unless CPF.valid?(cpf)
   end
 end
