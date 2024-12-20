@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_12_112437) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_14_034855) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,7 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_12_112437) do
   create_table "marriages", force: :cascade do |t|
     t.integer "husband_id"
     t.integer "wife_id"
-    t.integer "address_id"
     t.string "registered_by"
     t.boolean "dinner_participation", default: false
     t.text "reason"
@@ -43,6 +42,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_12_112437) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "uuid"
+    t.integer "address_id"
     t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"

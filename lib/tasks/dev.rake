@@ -26,9 +26,9 @@ namespace :dev do
 
   desc "Add students"
   task add_students: :environment do
-    puts "Adding 10 students"
+    puts "Adding 500 students"
     Faker::Config.locale = "pt-BR"
-    10.times do
+    500.times do
       husband = User.create!(
         name: Faker::Name.name,
         phone: Faker::PhoneNumber.cell_phone,
@@ -49,13 +49,27 @@ namespace :dev do
         gender: "female",
       ) if Rails.env.development?
 
+      address = Address.create!(
+        street: Faker::Address.street_name,
+        number: Faker::Address.building_number,
+        neighborhood: Faker::Address.community,
+        city: Faker::Address.city,
+        state: Faker::Address.state_abbr,
+        cep: Faker::Address.zip_code
+      ) if Rails.env.development?
+
       Marriage.create!(
         husband_id: husband.id,
         wife_id: wife.id,
-        is_member: true,
+        address_id: address.id,
+        is_member: [ true, false ].sample,
+        registered_by: [ "Leo", "Jafer", "Carlos", "Fabício" ].sample,
+        reason: Faker::Fantasy::Tolkien.poem,
+        campus: [ "CN Fortleza", "CN Eusébio", "CN Maraponga" ].sample,
         days_availability: [ "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" ].sample(2)
       ) if Rails.env.development?
-      puts "#{+1} Marriage added"
     end
+
+    puts "#{User.count} Usuários criados\n #{Marriage.count} Casais criados"
   end
 end
