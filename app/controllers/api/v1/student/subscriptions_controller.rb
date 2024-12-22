@@ -68,8 +68,8 @@ module API::V1
     end
 
     def index
-      searchable = if search_params[:name].present?
-        ::Marriage.by_name(search_params[:name])
+      searchable = if params[:name].present?
+        ::Marriage.by_name(params[:name])
       else
         ::Marriage.all
       end
@@ -152,10 +152,10 @@ module API::V1
       @voucher_params ||= params.require(:voucher).permit(:code)
     end
 
-    def search_params
-      return {} unless params.has_key?(:search)
+    # def search_params
+    #   return {} unless params.has_key?(:search)
 
-      @search_params ||= params.require(:search).permit(:name)
-    end
+    #   @search_params ||= params.require(:search).permit(:name)
+    # end
   end
 end
