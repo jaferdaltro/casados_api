@@ -68,25 +68,28 @@ module API::V1
     end
 
     def index
-      @marriages = ::Marriage.includes(:husband, :wife, :address).page(current_page).per(per_page)
-      render json: @marriages, meta: meta_attributes(@marriages),
-          only: [
-            :id,
-            :registered_by,
-            :dinner_participation,
-            :reason,
-            :children_quantity,
-            :days_availability,
-            :is_member,
-            :campus,
-            :religion,
-            :active
-          ],
-          include: [
-              husband: { only: [ :name, :phone, :email, :birth_at, :cpf, :role ] },
-              wife: { only: [ :name, :phone, :email, :birth_at, :cpf, :role ] },
-              address: { only: [ :street, :number, :neighborhood, :city, :state, :cep ] }
-            ], root: true, status: :ok
+      searchable = if search_params[:name].present?
+        ::Marriage.by_name(search_params[:name])
+      else
+        ::Marriage.all
+      end
+
+      marriages = searchable.includes(:husband, :wife, :address)
+                            .page(current_page)
+                            .per(per_page)
+
+      render json: marriages,
+             meta: meta_attributes(marriages),
+             only: %i[id registered_by dinner_participation reason
+                       children_quantity days_availability is_member
+                       campus religion active],
+             include: {
+               husband: { only: %i[name phone email birth_at cpf role] },
+               wife: { only: %i[name phone email birth_at cpf role] },
+               address: { only: %i[street number neighborhood city state cep] }
+             },
+             root: true,
+             status: :ok
     end
 
     private
@@ -147,6 +150,12 @@ module API::V1
       return {} unless params.has_key?(:voucher)
 
       @voucher_params ||= params.require(:voucher).permit(:code)
+    end
+
+    def search_params
+      return {} unless params.has_key?(:search)
+
+      @search_params ||= params.require(:search).permit(:name)
     end
   end
 end

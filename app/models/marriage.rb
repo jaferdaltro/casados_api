@@ -10,6 +10,7 @@ class Marriage < ApplicationRecord
   validate :should_be_different_users
 
   scope :by_phone, ->(phone) { joins(:husband, :wife).where("husband.phone" => phone).or(Marriage.where("wife.phone" => phone)) }
+  scope :by_name, ->(name) { joins(:husband, :wife).where("husband.name" => name).or(Marriage.where("wife.name" => name)) }
 
   private
 
