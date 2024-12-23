@@ -68,11 +68,8 @@ module API::V1
     end
 
     def index
-      searchable = if params[:name].present?
-        ::Marriage.by_name(params[:name])
-      else
-        ::Marriage.all
-      end
+      searchable = ::Marriage.by_name(params[:name]) if params[:name].present?
+      searchable ||= ::Marriage.all
 
       marriages = searchable.includes(:husband, :wife, :address)
                             .page(current_page)
