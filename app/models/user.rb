@@ -4,7 +4,9 @@ class User < ApplicationRecord
 
   after_initialize :insert_password
 
-  has_one :marriage, foreign_key: :wife_id, dependent: :destroy
+  has_many :marriages_as_husband, class_name: "Marriage", foreign_key: "husband_id"
+  has_many :marriages_as_wife, class_name: "Marriage", foreign_key: "wife_id"
+
   has_one :membership, dependent: :destroy
 
   has_one :token, class_name: "UserToken", dependent: :destroy
@@ -21,6 +23,8 @@ class User < ApplicationRecord
 
   normalizes :phone, with: -> { _1.tr("()", "").tr("-", "").gsub(/\s+/, "") }
   normalizes :cpf, with: -> { _1.gsub(/[.-]/, "") }
+
+  scope :by_name, ->(name) { where(name: name) }
 
   enum :role, [ :student, :co_leader, :leader, :coordinator ], prefix: true, default: :student
 

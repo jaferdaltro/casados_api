@@ -10,7 +10,11 @@ class Marriage < ApplicationRecord
   validate :should_be_different_users
 
   scope :by_phone, ->(phone) { joins(:husband, :wife).where("husband.phone" => phone).or(Marriage.where("wife.phone" => phone)) }
-  scope :by_name, ->(name) { joins(:husband, :wife).where("husband.name" => name).or(Marriage.where("wife.name" => name)) }
+ scope :by_name, ->(name) {
+  joins("INNER JOIN users AS husbands ON husbands.id = marriages.husband_id")
+    .joins("INNER JOIN users AS wives ON wives.id = marriages.wife_id")
+    .where("husbands.name ILIKE :name OR wives.name ILIKE :name", name: "%#{name}%")
+}
 
   private
 
