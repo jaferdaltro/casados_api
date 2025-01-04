@@ -135,8 +135,10 @@ module API::V1
       @marriage_params ||= params.require(:marriage).permit(
         :registered_by,
         :is_member,
+        :dinner_participation,
         :campus,
         :religion,
+        :active,
         :reason,
         :children_quantity,
         days_availability: []
