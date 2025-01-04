@@ -21,6 +21,8 @@ module API::V1
           address: address,
           registered_by: marriage_params[:registered_by],
           is_member: marriage_params[:is_member],
+          dinner_participation: marriage_params[:dinner_participation],
+          active: marriage_params[:active],
           campus: marriage_params[:campus],
           religion: marriage_params[:religion],
           reason: marriage_params[:reason],
@@ -47,7 +49,6 @@ module API::V1
 
     def update
       marriage = ::Marriage.find(params[:id])
-      # debugger
       marriage.husband.update(husband_params)
       marriage.wife.update(wife_params)
       marriage.address.update(address_params)
