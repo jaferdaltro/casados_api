@@ -48,15 +48,28 @@ module API::V1
     end
 
     def update
-      marriage = ::Marriage.find(params[:id])
-      marriage.husband.update(husband_params)
-      marriage.wife.update(wife_params)
-      marriage.address.update(address_params)
-      if marriage.update(marriage_params)
-        render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :ok
-      else
-        render json: { errors: marriage.errors.full_messages }, status: :unprocessable_entity
+      marriage = Marriage.find_by(id: params[:id])
+      return render json: { error: "Marriage not found" }, status: :not_found unless marriage
+
+      Marriage.transaction do
+        begin
+          marriage.husband.update!(husband_params)
+          marriage.wife.update!(wife_params)
+          marriage.address.update!(address_params)
+          marriage.update!(marriage_params)
+
+          render json: {
+            marriage: marriage,
+            include: [ :husband, :wife, :address ]
+          }, status: :ok
+        rescue ActiveRecord::RecordInvalid => e
+          render json: {
+            errors: e.record.errors.full_messages
+          }, status: :unprocessable_entity
+        end
       end
+    rescue StandardError => e
+      render json: { error: e.message }, status: :internal_server_error
     end
 
     def search
