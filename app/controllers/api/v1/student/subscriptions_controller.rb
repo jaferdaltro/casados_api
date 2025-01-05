@@ -55,7 +55,7 @@ module API::V1
         begin
           marriage.husband.update!(husband_params)
           marriage.wife.update!(wife_params)
-          marriage.address.update!(address_params)
+          marriage.address&.update!(address_params) || marriage.create_address(address_params)
           marriage.update!(marriage_params)
 
           render json: {
