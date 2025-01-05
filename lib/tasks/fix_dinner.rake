@@ -2,7 +2,7 @@ namespace :fix_dinner do
   desc "Fix the dinner participation"
   task dinner: :environment do
     count = 0
-    students = Marriage.joins(:husband).where("husband.role" => 0, created_at: "2024-12-17 16:41:15.944"..Time.now.midnight - 7.days)
+    students = Marriage.joins(:husband).where("husband.role" => 0, created_at: "2024-12-14 04:07:45.833"..Time.now.midnight - 7.days)
     puts "Number of marriages:
      #{students.count} marriages..."
     students.each do |marriage|
