@@ -82,9 +82,11 @@ module API::V1
     end
 
     def index
-      marriages = ::Marriage.all
+      # marriages = ::Marriage.all
 
-      marriages = marriages.by_name(params[:name]) if params[:name].present?
+      # marriages = marriages.by_name(params[:name]) if params[:name].present?
+      # marriages = marriages.by_dinner_participation(params[:dinner_participation]) if params[:dinner_participation].present?
+      marriages = search_records
       marriages = marriages.includes(:husband, :wife, :address)
                             .page(current_page)
                             .per(per_page)
@@ -105,6 +107,19 @@ module API::V1
 
     private
 
+    def search_records
+      records = ::Marriage.all
+      return records unless params.has_key?(:search)
+
+      search_params = params.require(:search).permit(:name, :dinner_participation)
+
+      search_params.each do |name|
+        records = records.by_name(name) if params[:search][:name].present?
+        records = records.by_dinner_participation(name) if params[:search][:dinner_participation].present?
+      end
+      records
+    end
+
     def voucher
       ::Voucher.find_by(code: voucher_params[:code])
     end
@@ -121,6 +136,7 @@ module API::V1
       @husband_params ||= params.require(:husband).permit(
         :name,
         :phone,
+        :role,
         :cpf,
         :email,
         :birth_at,
@@ -135,6 +151,7 @@ module API::V1
       @wife_params ||= params.require(:wife).permit(
         :name,
         :phone,
+        :role,
         :cpf,
         :email,
         :birth_at,
@@ -164,11 +181,5 @@ module API::V1
 
       @voucher_params ||= params.require(:voucher).permit(:code)
     end
-
-    # def search_params
-    #   return {} unless params.has_key?(:search)
-
-    #   @search_params ||= params.require(:search).permit(:name)
-    # end
   end
 end
