@@ -108,16 +108,18 @@ module API::V1
     private
 
     def search_records
-      records = ::Marriage.all
-      return records unless params.has_key?(:search)
+      records = Marriage.all
+      return records unless search_params.present?
 
-      search_params = params.require(:search).permit(:name, :dinner_participation)
+      scope = records
+      scope = scope.by_name(search_params[:name]) if search_params[:name].present?
+      scope = scope.by_dinner_participation(search_params[:dinner_participation]) if search_params[:dinner_participation].present?
 
-      search_params.each do |name|
-        records = records.by_name(name) if params[:search][:name].present?
-        records = records.by_dinner_participation(name) if params[:search][:dinner_participation].present?
-      end
-      records
+      scope.page(params[:page]).per(params[:per_page] || 10)
+    rescue ActionController::ParameterMissing => e
+      render json: { error: e.message }, status: :bad_request
+    rescue StandardError => e
+      render json: { error: "An error occurred while searching" }, status: :internal_server_error
     end
 
     def voucher
@@ -180,6 +182,10 @@ module API::V1
       return {} unless params.has_key?(:voucher)
 
       @voucher_params ||= params.require(:voucher).permit(:code)
+    end
+
+    def search_params
+      @search_params ||= params.fetch(:search, {}).permit(:name, :dinner_participation)
     end
   end
 end
