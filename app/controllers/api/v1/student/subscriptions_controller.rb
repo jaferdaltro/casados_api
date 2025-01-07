@@ -93,7 +93,7 @@ module API::V1
 
       render json: marriages,
              meta: meta_attributes(marriages),
-             only: %i[id registered_by dinner_participation reason
+             only: %i[id registered_by dinner_participation pastoral_indication reason
                        children_quantity days_availability is_member
                        campus religion active],
              include: {
@@ -113,13 +113,28 @@ module API::V1
 
       scope = records
       scope = scope.by_name(search_params[:name]) if search_params[:name].present?
+      scope = scope.by_cpf(search_params[:cpf]) if search_params[:cpf].present?
+      scope = scope.by_role(parametrize_role) if search_params[:role].present?
+      scope = scope.by_phone(search_params[:phone]) if search_params[:phone].present?
       scope = scope.by_dinner_participation(search_params[:dinner_participation]) if search_params[:dinner_participation].present?
+      scope = scope.by_pastoral_indication(search_params[:pastoral_indication]) if search_params[:pastoral_indication].present?
 
       scope.page(params[:page]).per(params[:per_page] || 10)
     rescue ActionController::ParameterMissing => e
       render json: { error: e.message }, status: :bad_request
     rescue StandardError => e
       render json: { error: "An error occurred while searching" }, status: :internal_server_error
+    end
+
+    def parametrize_role
+      role = search_params[:role]
+      case role
+      when "student" then 0
+      when "co_leader" then 1
+      when "leader" then 2
+      when "coordinator" then 3
+      else 0
+      end
     end
 
     def voucher
@@ -169,6 +184,7 @@ module API::V1
         :registered_by,
         :is_member,
         :dinner_participation,
+        :pastoral_indication,
         :campus,
         :religion,
         :active,
@@ -185,7 +201,7 @@ module API::V1
     end
 
     def search_params
-      @search_params ||= params.fetch(:search, {}).permit(:name, :dinner_participation)
+      @search_params ||= params.fetch(:search, {}).permit(:name, :cpf, :role, :dinner_participation, :pastoral_indication)
     end
   end
 end

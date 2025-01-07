@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_14_034855) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_07_175816) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -25,6 +25,29 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_14_034855) do
     t.datetime "updated_at", null: false
     t.index ["neighborhood"], name: "index_addresses_on_neighborhood"
     t.index ["street"], name: "index_addresses_on_street"
+  end
+
+  create_table "classroom_students", force: :cascade do |t|
+    t.bigint "classroom_id", null: false
+    t.bigint "marriage_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id", "marriage_id"], name: "index_classroom_students_on_classroom_id_and_marriage_id", unique: true
+    t.index ["classroom_id"], name: "index_classroom_students_on_classroom_id"
+    t.index ["marriage_id"], name: "index_classroom_students_on_marriage_id"
+  end
+
+  create_table "classrooms", force: :cascade do |t|
+    t.bigint "leader_marriage_id", null: false
+    t.bigint "co_leader_marriage_id", null: false
+    t.integer "address_id"
+    t.string "weekday"
+    t.string "class_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "semester"
+    t.index ["co_leader_marriage_id"], name: "index_classrooms_on_co_leader_marriage_id"
+    t.index ["leader_marriage_id"], name: "index_classrooms_on_leader_marriage_id"
   end
 
   create_table "marriages", force: :cascade do |t|
@@ -43,6 +66,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_14_034855) do
     t.datetime "updated_at", null: false
     t.string "uuid"
     t.integer "address_id"
+    t.boolean "pastoral_indication", default: false
     t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
@@ -91,5 +115,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_14_034855) do
     t.index ["code"], name: "index_vouchers_on_code", unique: true
   end
 
+  add_foreign_key "classroom_students", "classrooms"
+  add_foreign_key "classroom_students", "marriages"
+  add_foreign_key "classrooms", "marriages", column: "co_leader_marriage_id"
+  add_foreign_key "classrooms", "marriages", column: "leader_marriage_id"
   add_foreign_key "user_tokens", "users"
 end

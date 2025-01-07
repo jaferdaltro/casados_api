@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   namespace :api, constraints: { format: "json" } do
     namespace :v1 do
       resources :vouchers, only: [ :create ]
+      resources :classrooms, only: [ :create ]
       namespace :student do
         resources :subscriptions, only: [ :create, :index, :update ] do
           collection do
