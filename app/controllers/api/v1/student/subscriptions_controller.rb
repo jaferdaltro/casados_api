@@ -69,9 +69,7 @@ module API::V1
     end
 
     def search
-      debugger
       marriage = ::Marriage.by_phone(params[:phone])
-      marriage = ::User.find_by_phone(params[:phone]) if marriage.blank?
       render json: marriage,
       include: [ :husband, :wife, :address ],
       fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
