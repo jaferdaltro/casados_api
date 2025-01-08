@@ -7,14 +7,11 @@ module API::V1
     InvalidAddressError = Class.new(StandardError)
 
     def create
-      husband = ::User.new(husband_params)
-      wife = ::User.new(wife_params)
-      address = ::Address.new(address_params)
-      raise InvalidHusbandError unless husband.valid?
-      raise InvalidWifeError unless wife.valid?
-      raise InvalidAddressError unless address.valid?
+      ActiveRecord::Base.transaction do
+        husband = ::User.create!(husband_params)
+        wife = ::User.create!(wife_params)
+        address = ::Address.create!(address_params)
 
-      if husband.save && wife.save && address.save
         marriage = Marriage.new(
           husband: husband,
           wife: wife,
@@ -29,28 +26,20 @@ module API::V1
           children_quantity: marriage_params[:children_quantity],
           days_availability: marriage_params[:days_availability]
         )
+
         if marriage.save
           Rails.logger.info("[Subscription Create] Marriage created: #{marriage.id} for husband: #{husband.id} and wife: #{wife.id} by #{current_user.id}")
           render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :created
         else
-          Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{marriage.errors.full_messages}")
-          render json: { error: marriage.errors.full_messages }, status: :unprocessable_entity
+          raise ActiveRecord::RecordInvalid.new(marriage)
         end
       end
-    rescue InvalidHusbandError => e
-      Rails.logger.warn("[Subscription Create] Fail to process husband creation: #{husband.errors.full_messages}")
-      render json: { error: husband.errors.full_messages }, status: :unprocessable_entity
-    rescue InvalidWifeError => e
-      Rails.logger.warn("[Subscription Create] Fail to process wife creation: #{wife.errors.full_messages}")
-      render json: { error: wife.errors.full_messages }, status: :unprocessable_entity
-    rescue InvalidAddressError => e
-      Rails.logger.warn("[Subscription Create] Fail to process address creation: #{address.errors.full_messages}")
-      render json: { error: address.errors.full_messages }, status: :unprocessable_entity
     rescue ActiveRecord::RecordInvalid => e
-      Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{e.record.errors}")
+      Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{e.record.errors.full_messages}")
       render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
     rescue StandardError => e
-      render json: { error: e.message }, status: :unprocessable_entity
+      Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{e.message}")
+      render json: { error: e.message }, status: :internal_server_error
     end
 
     def update
@@ -61,6 +50,7 @@ module API::V1
         begin
           marriage.husband.update!(husband_params)
           marriage.wife.update!(wife_params)
+          marriage.address.id.nil? ? marriage.address.delete :
           marriage.address&.update!(address_params) || marriage.create_address(address_params)
           marriage.update!(marriage_params)
 
@@ -79,7 +69,9 @@ module API::V1
     end
 
     def search
+      debugger
       marriage = ::Marriage.by_phone(params[:phone])
+      marriage = ::User.find_by_phone(params[:phone]) if marriage.blank?
       render json: marriage,
       include: [ :husband, :wife, :address ],
       fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
