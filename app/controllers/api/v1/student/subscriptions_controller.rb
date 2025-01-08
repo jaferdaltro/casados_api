@@ -16,7 +16,7 @@ module API::V1
           husband: husband,
           wife: wife,
           address: address,
-          registered_by: marriage_params[:registered_by] || current_user!.name,
+          registered_by: marriage_params[:registered_by] || current_user&.name,
           is_member: marriage_params[:is_member],
           dinner_participation: marriage_params[:dinner_participation],
           active: marriage_params[:active],
