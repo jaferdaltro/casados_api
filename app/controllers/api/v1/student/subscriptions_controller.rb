@@ -38,12 +38,16 @@ module API::V1
         end
       end
     rescue InvalidHusbandError => e
+      Rails.logger.warn("[Subscription Create] Fail to process husband creation: #{husband.errors.full_messages}")
       render json: { error: husband.errors.full_messages }, status: :unprocessable_entity
     rescue InvalidWifeError => e
+      Rails.logger.warn("[Subscription Create] Fail to process wife creation: #{wife.errors.full_messages}")
       render json: { error: wife.errors.full_messages }, status: :unprocessable_entity
     rescue InvalidAddressError => e
+      Rails.logger.warn("[Subscription Create] Fail to process address creation: #{address.errors.full_messages}")
       render json: { error: address.errors.full_messages }, status: :unprocessable_entity
     rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{e.record.errors}")
       render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
     rescue StandardError => e
       render json: { error: e.message }, status: :unprocessable_entity
