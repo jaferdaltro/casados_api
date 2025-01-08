@@ -28,7 +28,7 @@ module API::V1
         )
 
         if marriage.save
-          Rails.logger.info("[Subscription Create] Marriage created: #{marriage.id} for husband: #{husband.id} and wife: #{wife.id} by #{current_user.id}")
+          Rails.logger.info("[Subscription Create] Marriage created: #{marriage&.id} for husband: #{husband&.id} and wife: #{wife&.id} by #{current_user&.id}")
           render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :created
         else
           raise ActiveRecord::RecordInvalid.new(marriage)
