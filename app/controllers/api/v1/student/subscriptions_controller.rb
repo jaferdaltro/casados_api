@@ -19,7 +19,7 @@ module API::V1
           husband: husband,
           wife: wife,
           address: address,
-          registered_by: marriage_params[:registered_by],
+          registered_by: marriage_params[:registered_by] || current_user.name,
           is_member: marriage_params[:is_member],
           dinner_participation: marriage_params[:dinner_participation],
           active: marriage_params[:active],
@@ -30,8 +30,10 @@ module API::V1
           days_availability: marriage_params[:days_availability]
         )
         if marriage.save
+          Rails.logger.info("[Subscription Create] Marriage created: #{marriage.id} for husband: #{husband.id} and wife: #{wife.id} by #{current_user.id}")
           render json: { marriage: marriage }, include: [ :husband, :wife, :address ], status: :created
         else
+          Rails.logger.warn("[Subscription Create] Fail to process marriage creation: #{marriage.errors.full_messages}")
           render json: { error: marriage.errors.full_messages }, status: :unprocessable_entity
         end
       end
@@ -58,17 +60,17 @@ module API::V1
           marriage.address&.update!(address_params) || marriage.create_address(address_params)
           marriage.update!(marriage_params)
 
-          render json: {
-            marriage: marriage,
-            include: [ :husband, :wife, :address ]
-          }, status: :ok
+          Rails.logger.info("[Subscription Update] Marriage updated: #{marriage.id} for husband: #{marriage.husband.id} and wife: #{marriage.wife.id} by #{current_user.id}")
+          render json: { marriage: marriage }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
+          Rails.logger.warn("[Subscription update] Fail to process marriage update: #{e.record.errors.full_messages}")
           render json: {
             errors: e.record.errors.full_messages
           }, status: :unprocessable_entity
         end
       end
     rescue StandardError => e
+      Rails.logger.warn("[Subscription update] Fail to process marriage update: #{e.message}")
       render json: { error: e.message }, status: :internal_server_error
     end
 
@@ -182,6 +184,9 @@ module API::V1
 
       @marriage_params ||= params.require(:marriage).permit(
         :registered_by,
+        :husband,
+        :wife,
+        :address,
         :is_member,
         :dinner_participation,
         :pastoral_indication,
