@@ -31,6 +31,52 @@ module API::V1
       render json: { error: e.message }, status: :internal_server_error
     end
 
+    def update
+      classroom = Classroom.find_by(id: params[:id])
+      return render json: { error: "Classroom not found" }, status: :not_found unless classroom
+
+      ActiveRecord::Base.transaction do
+        address = classroom.address
+        address.update!(address_params) if address.present?
+
+        if classroom.update(classroom_params)
+          render json: {
+            message: "Classroom updated successfully",
+            data: classroom.as_json(
+              include: {
+                leader_marriage: { include: [ :husband, :wife ] },
+                co_leader_marriage: { include: [ :husband, :wife ] },
+                address: {}
+              }
+            )
+          }, status: :ok
+        else
+          render json: {
+            error: classroom.errors.full_messages
+          }, status: :unprocessable_entity
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      render json: { error: e.message }, status: :internal_server_error
+    end
+
+    def index
+      classrooms = Classroom.includes(:leader_marriage, :co_leader_marriage, :address)
+      classrooms = classrooms.where(leader_marriage_id: params[:leader_marriage_id]) if params[:leader_marriage_id].present?
+      classrooms = classrooms.where(co_leader_marriage_id: params[:co_leader_marriage_id]) if params[:co_leader_marriage_id].present?
+      classrooms = classrooms.page(params[:page]).per(params[:per_page] || 10)
+
+      render json: classrooms.as_json(
+        include: {
+          leader_marriage: { include: [ :husband, :wife ] },
+          co_leader_marriage: { include: [ :husband, :wife ] },
+          address: {}
+        }
+      ), status: :ok
+    end
+
     private
 
     def classroom_params
@@ -43,9 +89,12 @@ module API::V1
     end
 
     def address_params
-      return {} unless params.has_key?(:address)
-
-      params.require(:address).permit(:street, :number, :neighborhood, :city, :state, :cep)
+      params.require(:address).permit(
+        :street,
+        :city,
+        :state,
+        :zip_code
+      )
     end
   end
 end
