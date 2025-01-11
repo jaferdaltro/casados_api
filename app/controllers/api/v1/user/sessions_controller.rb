@@ -4,7 +4,9 @@ module API::V1
       def create
         user = ::User.find_by(cpf: params[:session][:cpf])
         if user && user.authenticate(params[:session][:password])
-          log_in(user)
+          reset_session
+          remember user
+          log_in user
           render json: { user: user }, status: :ok
         else
           render_error(status: :unauthorized, message: "Usuário ou senha inválidos")
