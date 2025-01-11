@@ -26,9 +26,9 @@ namespace :dev do
 
   desc "Add students"
   task add_students: :environment do
-    puts "Adding 500 students"
+    puts "Adding students..."
     Faker::Config.locale = "pt-BR"
-    500.times do
+    10.times do
       husband = User.create!(
         name: Faker::Name.name,
         phone: Faker::PhoneNumber.cell_phone,
@@ -59,6 +59,7 @@ namespace :dev do
       ) if Rails.env.development?
 
       Marriage.create!(
+        # uuid: SecureRandom.uuid,
         husband_id: husband.id,
         wife_id: wife.id,
         address_id: address.id,

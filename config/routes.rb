@@ -1,8 +1,8 @@
-Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+require "sidekiq/web"
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+Rails.application.routes.draw do
+  mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api, constraints: { format: "json" } do
@@ -10,6 +10,12 @@ Rails.application.routes.draw do
       resources :vouchers, only: [ :create ]
       resources :classrooms, only: [ :create, :update, :index ]
       namespace :student do
+        resources :payments do
+          collection do
+            post :create_credit_card
+            post :create_pix
+          end
+        end
         resources :subscriptions, only: [ :create, :index, :update ] do
           collection do
             get :search

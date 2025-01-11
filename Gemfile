@@ -29,6 +29,9 @@ gem "jwt", "~> 1.5", ">= 1.5.4"
 
 gem "kaminari", "~> 1.2", ">= 1.2.2"
 
+gem "sidekiq", "~> 7.3", ">= 7.3.7"
+# gem "sidekiq-status", "~> 3.0", ">= 3.0.3"
+
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
