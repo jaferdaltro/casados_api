@@ -50,11 +50,10 @@ module API::V1
         begin
           marriage.husband.update!(husband_params)
           marriage.wife.update!(wife_params)
-          marriage.address.id.nil? ? marriage.address.delete :
-          marriage.address&.update!(address_params) || marriage.create_address(address_params)
+          marriage.address_id.nil? ? marriage.create_address(address_params) : marriage.address&.update!(address_params)
           marriage.update!(marriage_params)
 
-          Rails.logger.info("[Subscription Update] Marriage updated: #{marriage.id} for husband: #{marriage.husband.id} and wife: #{marriage.wife.id} by #{current_user.id}")
+          Rails.logger.info("[Subscription Update] Marriage updated: #{marriage.id}")
           render json: { marriage: marriage }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           Rails.logger.warn("[Subscription update] Fail to process marriage update: #{e.record.errors.full_messages}")
