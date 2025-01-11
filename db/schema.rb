@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_07_175816) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_11_013621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,10 +67,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_07_175816) do
     t.string "uuid"
     t.integer "address_id"
     t.boolean "pastoral_indication", default: false
+    t.string "id_asaas"
     t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
     t.index ["wife_id"], name: "index_marriages_on_wife_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "marriage_id", null: false
+    t.string "asaas_client_id"
+    t.string "description"
+    t.decimal "amount"
+    t.integer "payment_method"
+    t.integer "status"
+    t.date "due_date"
+    t.string "asaas_payment_id"
+    t.string "qr_code"
+    t.string "card_holder_name"
+    t.string "card_number"
+    t.string "card_expiry_month"
+    t.string "card_expiry_year"
+    t.string "card_cvv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["marriage_id"], name: "index_payments_on_marriage_id"
   end
 
   create_table "student_subscriptions", force: :cascade do |t|
@@ -101,6 +122,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_07_175816) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "remember_token"
+    t.string "remember_digest"
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 
@@ -119,5 +142,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_07_175816) do
   add_foreign_key "classroom_students", "marriages"
   add_foreign_key "classrooms", "marriages", column: "co_leader_marriage_id"
   add_foreign_key "classrooms", "marriages", column: "leader_marriage_id"
+  add_foreign_key "payments", "marriages"
   add_foreign_key "user_tokens", "users"
 end
