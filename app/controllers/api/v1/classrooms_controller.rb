@@ -37,7 +37,7 @@ module API::V1
 
       ActiveRecord::Base.transaction do
         address = classroom.address
-        address.update!(address_params) if address.present?
+        address.update!(address_params) if address_params.present? && address.present?
 
         if classroom.update(classroom_params)
           render json: {
@@ -80,6 +80,8 @@ module API::V1
     private
 
     def classroom_params
+      return {} unless params[:classroom].present?
+
       params.require(:classroom).permit(
         :leader_marriage_id,
         :co_leader_marriage_id,
@@ -89,6 +91,8 @@ module API::V1
     end
 
     def address_params
+      return {} unless params[:address].present?
+
       params.require(:address).permit(
         :street,
         :city,
