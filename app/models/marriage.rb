@@ -5,6 +5,7 @@ class Marriage < ApplicationRecord
 
   has_many :classroom_students
   has_many :classrooms, through: :classroom_students
+  has_many :payments
 
   has_one :student_subscription
 

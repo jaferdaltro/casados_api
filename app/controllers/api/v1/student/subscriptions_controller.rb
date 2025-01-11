@@ -78,10 +78,6 @@ module API::V1
     end
 
     def index
-      # marriages = ::Marriage.all
-
-      # marriages = marriages.by_name(params[:name]) if params[:name].present?
-      # marriages = marriages.by_dinner_participation(params[:dinner_participation]) if params[:dinner_participation].present?
       marriages = search_records
       marriages = marriages.includes(:husband, :wife, :address)
                             .page(current_page)
