@@ -15,7 +15,8 @@ class CreateClientJob < ApplicationJob
       asaas_id = response["id"]
       Rails.logger.info("[Create Client Job] - created Client: #{name}")
       CreateChargeJob.perform_now(asaas_id, uuid)
-      # Rails.cache.write(job_2)
+    else
+      Rails.logger.error("[Create Client Job] - Error: request code #{request.code}")
     end
   rescue StandardError => e
     Rails.logger.error("[Create Client Job] - Error: #{e.message}")

@@ -4,9 +4,18 @@ module API::V1
 
     def create_pix
      CreateClientJob.perform_now(params[:marriage_uuid])
-     sleep 1
-     payload = @client.payments.last.qr_code
-     render json: { pix: payload }, status: :created
+     payload = nil
+     count = 0
+     while payload.nil? || count == 10 do
+      payload = @client.payments&.last.qr_code
+      count += 1
+      sleep 1
+     end
+     unless payload.nil?
+      render json: { pix: payload }, status: :created
+     else
+      render json: { error: "Não foi possível criar a chave PIX" }, status: :unprocessable_entity
+     end
     end
 
     private
