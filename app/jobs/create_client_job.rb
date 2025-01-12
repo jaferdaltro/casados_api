@@ -19,7 +19,7 @@ class CreateClientJob < ApplicationJob
       Rails.logger.error("[Create Client Job] - Error: request code #{request.code}")
     end
   rescue StandardError => e
-    Rails.logger.error("[Create Client Job] - Error: #{e.message}")
+    Rails.logger.error("[Create Client Job] - Error: #{e.message} - request code: #{request.code}")
   end
 
   def build_client
