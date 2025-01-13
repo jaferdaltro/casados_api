@@ -3,7 +3,7 @@ module API::V1
     before_action :set_client
 
     def create_pix
-     CreateClientJob.perform_now(params[:marriage_uuid])
+     CreateClientJob.perform_now(params[:marriage_uuid], args = nil)
      payload = nil
      count = 0
      while payload.nil? || count == 10 do
@@ -18,12 +18,44 @@ module API::V1
      end
     end
 
+    def create_credit_card
+      CreateClientJob.perform_now(params[:marriage_uuid], args = credit_card_params)
+      render json: { credit_card: "processando pagamento" }, status: :created
+    end
+
+    def webhook
+      # customer = params[:payment][:customer]
+      # client = @client.payments.last.asaas_client_id
+      # due_date = params[:payment][:dueDate].to_date
+      event = params[:event]
+      value = params[:payment][:value]
+      type = params[:payment][:billingType]
+      status = set_status(params[:payment][:status])
+      payment_id = params[:payment][:id]
+      payment = Payment.find_by_asaas_payment_id(payment_id)
+      marriage = payment.marriage
+      payment.update_attribute(:status, status)
+      marriage.update_attribute(:active, true)
+      set_size(marriage)
+      render json: { marriage_uuid: marriage.uuid,  event: event, value: value, type: type, status: status }, status: :ok
+    end
+
     private
 
-    def set_size
+    def set_status(status)
+      case status
+      when "CREATED" then :CREATED
+      when "PENDING" then :PENDING
+      when "RECEIVED" then :RECEIVED
+      when "CONFIRMED" then :CONFIRMED
+      when "CANCELED" then :CANCELED
+      end
+    end
+
+    def set_size(marriage)
       ActiveRecord::Base.transaction do
-        @client.husband.update_attribute(:t_shirt_size, husband_size_params)
-        @client.wife.update_attribute(:t_shirt_size, wife_size_params)
+        marriage.husband.update_attribute(:t_shirt_size, husband_size_params)
+        marriage.wife.update_attribute(:t_shirt_size, wife_size_params)
       end
     rescue ActiveRecord::RecordNotFound => e
       Rails.logger.error("[Create Client] - Client not found")
@@ -47,6 +79,12 @@ module API::V1
       return {} unless params[:wife_size]
 
       params.require(:wife_size).permit(:P, :M, :G, :GG, :XG)
+    end
+
+    def credit_card_params
+      return {} unless params[:creditCard]
+
+      params.require(:creditCard).permit(:holderName, :number, :expiryMonth, :expiryYear, :ccv)
     end
   end
 end

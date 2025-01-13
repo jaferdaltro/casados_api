@@ -1,20 +1,21 @@
 class CreateClientJob < ApplicationJob
   queue_as :default
 
-  def perform(uuid)
-    set_client(uuid)
+  def perform(uuid, payment_args)
+    @uuid = uuid
+    @payment_args = payment_args if payment_args.present?
+    set_client
     create_client
   end
 
   def create_client
     name = @client.husband.name
-    uuid = @client.uuid
     request = Asaas::Base.new("/api/v3/customers").create(build_client)
     response = JSON.parse(request.read_body)
     if request.code == "200"
       asaas_id = response["id"]
       Rails.logger.info("[Create Client Job] - created Client: #{name}")
-      CreateChargeJob.perform_now(asaas_id, uuid)
+      CreateChargeJob.perform_now(asaas_id, @uuid, @payment_args)
     else
       Rails.logger.error("[Create Client Job] - Error: request code #{request.code}")
     end
@@ -31,8 +32,8 @@ class CreateClientJob < ApplicationJob
 
   private
 
-  def set_client(uuid)
-    @client = Marriage.find_by_uuid(uuid)
+  def set_client
+    @client = Marriage.find_by_uuid(@uuid)
   rescue ActiveRecord::RecordNotFound
     Rails.logger.error("[Create Client] - Client not found")
   end

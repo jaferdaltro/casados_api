@@ -1,19 +1,15 @@
 class CreatePixJob < ApplicationJob
-  # include Sidekiq::Worker
-  # include Sidekiq::Status::Worker
   queue_as :default
 
   attr_reader :qr_code
 
-  def perform(uuid, payment_id, status, type, value, due_date)
+  def perform(uuid, customer, payment_id, status, value)
     @client_uuid = uuid
     @payment_id = payment_id
     @status = status
-    @type = type
     @value = value
-    @due_date = due_date
+    @asaas_client_id = customer
     pix_qr_code
-    # at(100, "Final job completed")
   end
 
   def pix_qr_code
@@ -22,19 +18,33 @@ class CreatePixJob < ApplicationJob
     if request.code == "200"
       set_client
       @qr_code = response
-      Payment.create!(
-        marriage_id: @client.id,
-        asaas_payment_id: @payment_id,
-        qr_code: @qr_code,
-        status: @status,
-        payment_method: @type,
-        amount: @value,
-        due_date: @due_date
-      )
-      Rails.logger.info("[Create PIX Job] - created QR Code: #{qr_code}")
+      create_payment
+      Rails.logger.info("[CREATE PIX] - created QR Code: #{qr_code}")
     end
   rescue StandardError => e
-    Rails.logger.error("[Create PIX Job] - Error to create QR Code: #{e.message}")
+    Rails.logger.error("[CREATE PIX] - Error to create QR Code: #{e.message}")
+  end
+
+  def create_payment
+    Payment.create!(
+      marriage_id: @client.id,
+      asaas_payment_id: @payment_id,
+      qr_code: @qr_code,
+      status: set_status(@status),
+      payment_method: :PIX,
+      amount: @value,
+      asaas_client_id: @asaas_client_id,
+      uuid: @client_uuid
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("[CREATE PIX] - Error to create Payment into DB: #{e.record.errors}")
+  end
+
+  def set_status status
+    case status
+    when "PENDING" then :PENDING
+    when "CONFIRMED" then :CONFIRMED
+    end
   end
 
   def set_client

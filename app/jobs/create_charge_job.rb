@@ -4,7 +4,8 @@ class CreateChargeJob < ApplicationJob
   queue_as :default
 
 
-  def perform(asaas_id, uuid)
+  def perform(asaas_id, uuid, payment_args = nil)
+    @payment_args = payment_args if payment_args.present?
     @uuid = uuid
     @asaas_id = asaas_id
     create_charge
@@ -16,18 +17,18 @@ class CreateChargeJob < ApplicationJob
     if request.code == "200"
       payment_id = response["id"]
       status = response["status"]
-      type = response["billingType"]
+      customer = response["customer"]
       value = response["value"].to_f
-      due_date = response["dueDate"]
-      CreatePixJob.perform_now(@uuid, payment_id, status, type, value, due_date)
-      # Rails.cache.write(job_3)
+      @payment_args.present? ?
+        CreateCreditJob.perform_now(@uuid, payment_id, @payment_args) :
+        CreatePixJob.perform_now(@uuid,customer, payment_id, status, value)
     else
-      Rails.logger.error("[Create Charge Job] - Error to create charge: #{response['errors'].last["description"]}")
+      Rails.logger.error("[CREATE CHARGE] - Error to create charge: #{response['errors'].last["description"]}")
     end
 
-    Rails.logger.info("[Create Charge Job] - created charge: #{@asaas_id}")
+    Rails.logger.info("[CREATE CHARGE] - created charge: #{@asaas_id}")
   rescue StandardError => e
-    Rails.logger.error("[Create Charge Job] - Error: #{e.message}")
+    Rails.logger.error("[CREATE CHARGE] - Error: #{e.message}")
   end
 
   def build_charge

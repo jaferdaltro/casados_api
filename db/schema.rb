@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_11_013621) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_13_013420) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_11_013621) do
     t.string "card_cvv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "uuid"
     t.index ["marriage_id"], name: "index_payments_on_marriage_id"
   end
 
