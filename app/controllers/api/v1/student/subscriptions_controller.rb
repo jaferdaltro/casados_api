@@ -5,6 +5,7 @@ module API::V1
     InvalidHusbandError = Class.new(StandardError)
     InvalidWifeError = Class.new(StandardError)
     InvalidAddressError = Class.new(StandardError)
+    MarriageNotFoundError = Class.new(StandardError)
 
     def create
       ActiveRecord::Base.transaction do
@@ -68,12 +69,27 @@ module API::V1
     end
 
     def search
-      marriage = ::Marriage.by_phone(params[:phone])
-      render json: marriage,
-      include: [ :husband, :wife, :address ],
-      fields: { marriages: [ :id, :is_member, :registered_by, :reason ] }
+      marriage = ::Marriage.find_by_uuid(params[:uuid])
+      marriage ||= ::Marriage.by_phone(params[:phone])
+      raise MarriageNotFoundError unless marriage
+      render json: marriage, include: [ :husband, :wife, :address ],
+      fields: { marriage: [
+        :id,
+        :registered_by,
+        :dinner_participation,
+        :pastoral_indication,
+        :reason,
+        :children_quantity,
+        :days_availability,
+        :is_member,
+        :campus,
+        :religion,
+        :active] }, root: true, status: :ok
+    rescue MarriageNotFoundError => e
+      render json: { error: e.message }, status: :not_found
     rescue ActiveRecord::RecordNotFound => e
       render json: { error: e.message }, status: :not_found
+    rescue
     end
 
     def index
