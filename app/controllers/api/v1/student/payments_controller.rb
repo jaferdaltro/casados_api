@@ -23,13 +23,19 @@ module API::V1
       render json: { credit_card: "processando pagamento" }, status: :created
     end
 
+    def payment_status
+      payment = Payment.where(uuid: params[:uuid]).last
+      return render json: { error: "Payment not found" }, status: :not_found if payment.nil?
+
+      render json: {
+        uuid: payment.uuid,
+        value: payment.amount,
+        type: payment.payment_method,
+        status: payment.status
+      }, status: :ok
+    end
+
     def webhook
-      # customer = params[:payment][:customer]
-      # client = @client.payments.last.asaas_client_id
-      # due_date = params[:payment][:dueDate].to_date
-      event = params[:event]
-      value = params[:payment][:value]
-      type = params[:payment][:billingType]
       status = set_status(params[:payment][:status])
       payment_id = params[:payment][:id]
       payment = Payment.find_by_asaas_payment_id(payment_id)
@@ -37,7 +43,6 @@ module API::V1
       payment.update_attribute(:status, status)
       marriage.update_attribute(:active, true)
       set_size(marriage)
-      render json: { marriage_uuid: marriage.uuid,  event: event, value: value, type: type, status: status }, status: :ok
     end
 
     private

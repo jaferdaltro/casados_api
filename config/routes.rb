@@ -15,6 +15,7 @@ Rails.application.routes.draw do
             post :create_credit_card
             post :create_pix
             post :webhook
+            get :payment_status
           end
         end
         resources :subscriptions, only: [ :create, :index, :update ] do
