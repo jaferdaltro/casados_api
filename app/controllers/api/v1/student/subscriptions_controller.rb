@@ -69,8 +69,8 @@ module API::V1
     end
 
     def search
-      marriage = ::Marriage.find_by_uuid(params[:uuid])
-      marriage ||= ::Marriage.by_phone(params[:phone])
+      marriage = ::Marriage.find_by_uuid(params[:uuid]) if params[:uuid].present?
+      marriage = ::Marriage.by_phone(params[:phone]) if params[:phone].present?
       render json: marriage, include: [ :husband, :wife, :address ],
              fields: { marriages: [ :id, :is_member, :registered_by, :reason ] },
              status: :ok
