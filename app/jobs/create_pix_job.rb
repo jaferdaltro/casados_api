@@ -17,7 +17,7 @@ class CreatePixJob < ApplicationJob
     response = JSON.parse(request.read_body)
     if request.code == "200"
       set_client
-      @qr_code = response
+      @qr_code = response['payload']
       create_payment
       Rails.logger.info("[CREATE PIX] - created QR Code: #{qr_code}")
     end
