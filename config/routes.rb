@@ -23,6 +23,7 @@ Rails.application.routes.draw do
             get :search
           end
         end
+        resources :messages, only: [ :create ]
       end
       namespace :user do
         resources :registrations, only: [ :create, :update ] do
