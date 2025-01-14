@@ -3,7 +3,7 @@ module API::V1
     before_action :set_client
 
     def create_pix
-     CreateClientJob.perform_now(params[:marriage_uuid], args = nil)
+     CreateClientJob.perform_now(params[:marriage_uuid], "PIX", args = nil)
      payload = nil
      count = 0
      while payload.nil? || count == 10 do
@@ -19,8 +19,16 @@ module API::V1
     end
 
     def create_credit_card
-      CreateClientJob.perform_now(params[:marriage_uuid], args = credit_card_params)
-      render json: { credit_card: "processando pagamento" }, status: :created
+      result = CreateClientJob.perform_now(params[:marriage_uuid], "CREDIT_CARD", args = credit_card_params)
+      if result['status'] == "CONFIRMED"
+        persist_charge(result)
+        set_size(@client)
+        render json: { credit_card_status: result['status'] }, status: :created
+      elsif result.nil?
+        render json: { error: "houve um erro ao processar o pagamento" }, status: :unprocessable_entity
+      else
+        render json: { message: result['errors'].first["description"] }, status: :unprocessable_entity
+      end
     end
 
     def payment_status
@@ -42,7 +50,6 @@ module API::V1
       marriage = payment.marriage
       payment.update_attribute(:status, status)
       marriage.update_attribute(:active, true)
-      set_size(marriage)
     end
 
     private
@@ -59,8 +66,8 @@ module API::V1
 
     def set_size(marriage)
       ActiveRecord::Base.transaction do
-        marriage.husband.update_attribute(:t_shirt_size, husband_size_params)
-        marriage.wife.update_attribute(:t_shirt_size, wife_size_params)
+        marriage.husband.update_attribute(:t_shirt_size, sizes_params[:husband])
+        marriage.wife.update_attribute(:t_shirt_size, sizes_params[:wife])
       end
     rescue ActiveRecord::RecordNotFound => e
       Rails.logger.error("[Create Client] - Client not found")
@@ -74,22 +81,32 @@ module API::V1
       Rails.logger.error("[Create PIX Job] - Client not found")
     end
 
-    def husband_size_params
-      return {} unless params[:husband_size]
-
-      params.require(:husband_size).permit(:P, :M, :G, :GG, :XG)
+    def persist_charge(response)
+      Payment.create!(
+        marriage_id: @client.id,
+        asaas_payment_id: response['id'],
+        status: set_status(response['status']),
+        payment_method: response['billingType'].to_sym,
+        amount: response['value'],
+        uuid: @uuid,
+        asaas_client_id: response['customer'],
+        due_date: response['dueDate'].to_date
+      )
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error("[CREATE CHARGE] - Error to create Payment into DB: #{e.record.errors}")
     end
 
-    def wife_size_params
-      return {} unless params[:wife_size]
+    def sizes_params
+      return {} unless params[:sizes]
 
-      params.require(:wife_size).permit(:P, :M, :G, :GG, :XG)
+      params.require(:sizes).permit(:husband, :wife)
     end
 
     def credit_card_params
-      return {} unless params[:creditCard]
+      return {} unless params[:payment]
 
-      params.require(:creditCard).permit(:holderName, :number, :expiryMonth, :expiryYear, :ccv)
+      params.require(:payment)
+        .permit(:installmentCount, :creditCard => [:holderName, :number, :expiryMonth, :expiryYear, :ccv])
     end
   end
 end

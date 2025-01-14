@@ -1,9 +1,10 @@
 class CreateClientJob < ApplicationJob
   queue_as :default
 
-  def perform(uuid, payment_args)
+  def perform(uuid, billing_type, payment_args)
     @uuid = uuid
     @payment_args = payment_args if payment_args.present?
+    @billing_type = billing_type
     set_client
     create_client
   end
@@ -15,7 +16,7 @@ class CreateClientJob < ApplicationJob
     if request.code == "200"
       asaas_id = response["id"]
       Rails.logger.info("[Create Client Job] - created Client: #{name}")
-      CreateChargeJob.perform_now(asaas_id, @uuid, @payment_args)
+      CreateChargeJob.perform_now(asaas_id, @uuid, @billing_type, @payment_args)
     else
       Rails.logger.error("[Create Client Job] - Error: request code #{request.code}")
     end
