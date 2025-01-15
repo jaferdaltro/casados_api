@@ -1,33 +1,35 @@
 module API::V1
   class Student::PaymentsController < ApplicationController
-    before_action :set_client
+    before_action :set_client, only: [ :create_pix, :create_credit_card ]
 
     def create_pix
-     CreateClientJob.perform_now(params[:marriage_uuid], "PIX", args = nil)
-     payload = nil
-     count = 0
-     while payload.nil? || count == 10 do
-      payload = @client.payments&.last.qr_code
-      count += 1
-      sleep 1
-     end
-     unless payload.nil?
-      render json: { pix: payload }, status: :created
-     else
-      render json: { error: "Não foi possível criar a chave PIX" }, status: :unprocessable_entity
-     end
+     result = CreateClientJob.perform_now(params[:marriage_uuid], "PIX", args = nil)
+      if result["status"] == "PENDING"
+        charge = persist_charge(result, @client)
+        result = CreatePixJob.perform_now(result["id"])
+        if result["success"]
+          payload = result["payload"]
+          set_size(@client)
+          charge.update_attribute(:qr_code, payload)
+          render json: { code: payload }, status: :created
+        end
+      elsif result.nil?
+        render json: { error: "houve um erro ao processar o pagamento" }, status: :unprocessable_entity
+      else
+        render json: { message: result["errors"].first["description"] }, status: :unprocessable_entity
+      end
     end
 
     def create_credit_card
       result = CreateClientJob.perform_now(params[:marriage_uuid], "CREDIT_CARD", args = credit_card_params)
-      if result['status'] == "CONFIRMED"
-        persist_charge(result)
+      if result["status"] == "CONFIRMED"
+        persist_charge(result, @client)
         set_size(@client)
-        render json: { credit_card_status: result['status'] }, status: :created
+        render json: { credit_card_status: result["status"] }, status: :created
       elsif result.nil?
         render json: { error: "houve um erro ao processar o pagamento" }, status: :unprocessable_entity
       else
-        render json: { message: result['errors'].first["description"] }, status: :unprocessable_entity
+        render json: { message: result["errors"].first["description"] }, status: :unprocessable_entity
       end
     end
 
@@ -48,8 +50,13 @@ module API::V1
       payment_id = params[:payment][:id]
       payment = Payment.find_by_asaas_payment_id(payment_id)
       marriage = payment.marriage
-      payment.update_attribute(:status, status)
-      marriage.update_attribute(:active, true)
+
+      payment.update_attribute(:status, status) unless payment.nil?
+      marriage.update_attribute(:active, true) unless marriage.nil?
+    rescue ActiveRecord::RecordNotFound => e
+      Rails.logger.error("[WEBHOOK] - Record not found - Error: #{e}")
+    rescue StandardError => e
+      Rails.logger.error("[WEBHOOK] - Error: #{e}")
     end
 
     private
@@ -81,16 +88,16 @@ module API::V1
       Rails.logger.error("[Create PIX Job] - Client not found")
     end
 
-    def persist_charge(response)
+    def persist_charge(response, client)
       Payment.create!(
-        marriage_id: @client.id,
-        asaas_payment_id: response['id'],
-        status: set_status(response['status']),
-        payment_method: response['billingType'].to_sym,
-        amount: response['value'],
-        uuid: @uuid,
-        asaas_client_id: response['customer'],
-        due_date: response['dueDate'].to_date
+        marriage_id: client.id,
+        asaas_payment_id: response["id"],
+        status: set_status(response["status"]),
+        payment_method: response["billingType"].to_sym,
+        amount: response["value"],
+        uuid: client.uuid,
+        asaas_client_id: response["customer"],
+        due_date: response["dueDate"].to_date
       )
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("[CREATE CHARGE] - Error to create Payment into DB: #{e.record.errors}")
@@ -106,7 +113,7 @@ module API::V1
       return {} unless params[:payment]
 
       params.require(:payment)
-        .permit(:installmentCount, :creditCard => [:holderName, :number, :expiryMonth, :expiryYear, :ccv])
+        .permit(:installmentCount, creditCard: [ :holderName, :number, :expiryMonth, :expiryYear, :ccv ])
     end
   end
 end
