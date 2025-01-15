@@ -3,7 +3,9 @@ module API::V1
     before_action :set_client, only: [ :create_pix, :create_credit_card ]
 
     def create_pix
-     result = CreateClientJob.perform_now(params[:marriage_uuid], "PIX", args = nil)
+      return render json: { error: "Pagamento já foi efetuado" }, status: :unprocessable_entity if @client.active
+
+      result = CreateClientJob.perform_now(params[:marriage_uuid], "PIX", args = nil)
       if result["status"] == "PENDING"
         charge = persist_charge(result, @client)
         result = CreatePixJob.perform_now(result["id"])
@@ -21,6 +23,8 @@ module API::V1
     end
 
     def create_credit_card
+      return render json: { error: "Pagamento já foi efetuado" }, status: :unprocessable_entity if @client.active
+
       result = CreateClientJob.perform_now(params[:marriage_uuid], "CREDIT_CARD", args = credit_card_params)
       if result["status"] == "CONFIRMED"
         persist_charge(result, @client)
