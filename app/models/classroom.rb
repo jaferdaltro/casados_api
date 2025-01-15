@@ -15,6 +15,8 @@ class Classroom < ApplicationRecord
 
   before_create :set_semester
 
+  scope :active, -> { where(active: true) }
+
   private
 
   def set_semester

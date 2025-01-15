@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_13_013420) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_15_023249) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,6 +46,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_13_013420) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "semester"
+    t.boolean "active", default: false
     t.index ["co_leader_marriage_id"], name: "index_classrooms_on_co_leader_marriage_id"
     t.index ["leader_marriage_id"], name: "index_classrooms_on_leader_marriage_id"
   end
@@ -72,6 +73,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_13_013420) do
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
     t.index ["wife_id"], name: "index_marriages_on_wife_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.integer "sender_id"
+    t.integer "receiver_id"
+    t.text "description"
+    t.boolean "sended", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "payments", force: :cascade do |t|

@@ -10,6 +10,12 @@ class ApplicationController < ActionController::API
     render_error(status: :internal_server_error, message: exception.message)
   end
 
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+
+  def record_not_found
+    render json: { error: "Registro não encontrado" }, status: :not_found
+  end
+
   protected
 
   # Sets a cookie

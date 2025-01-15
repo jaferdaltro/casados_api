@@ -6,6 +6,8 @@ class User < ApplicationRecord
 
   has_many :marriages_as_husband, class_name: "Marriage", foreign_key: "husband_id"
   has_many :marriages_as_wife, class_name: "Marriage", foreign_key: "wife_id"
+  has_many :messages_as_sender, class_name: "Message", foreign_key: "sender_id"
+  has_many :messages_as_receiver, class_name: "Message", foreign_key: "receiver_id"
 
   has_one :membership, dependent: :destroy
 

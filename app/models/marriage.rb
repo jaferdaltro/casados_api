@@ -28,6 +28,11 @@ class Marriage < ApplicationRecord
     .where("husbands.role = ? OR wives.role = ?", role, role)
   }
 
+  scope :active_students, -> { joins(:husband).where(active: true, "husband.role" => 0) }
+  scope :active_leaders, -> { joins(:husband).where(active: true, "husband.role" => 1) }
+  scope :active_co_leaders, -> { joins(:husband).where(active: true, "husband.role" => 2) }
+  scope :inactive_students, -> { joins(:husband).where(active: false, "husband.role" => 0) }
+
   scope :by_dinner_participation, ->(dinner_participation) { where(dinner_participation: dinner_participation) }
   scope :by_pastoral_indication, ->(pastoral_indication) { where(pastoral_indication: pastoral_indication) }
 
