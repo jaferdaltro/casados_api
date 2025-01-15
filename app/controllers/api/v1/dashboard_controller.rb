@@ -7,12 +7,14 @@ module API::V1
       active_classrooms = Classroom.active.count
       inactive_students = Marriage.inactive_students.count
       sended_messages = Message.sended.count
+      created_classrooms = Classroom.count
 
       render json: {
                       active_students: active_students,
                       active_leaders: active_leaders,
                       active_co_leaders: active_co_leaders,
                       active_classrooms: active_classrooms,
+                      classroom_created: created_classrooms,
                       inactive_students: inactive_students,
                       sended_messages: sended_messages
                     }, status: :ok
