@@ -29,8 +29,8 @@ class Marriage < ApplicationRecord
   }
 
   scope :active_students, -> { joins(:husband).where(active: true, "husband.role" => 0) }
-  scope :active_leaders, -> { joins(:husband).where(active: true, "husband.role" => 1) }
-  scope :active_co_leaders, -> { joins(:husband).where(active: true, "husband.role" => 2) }
+  scope :active_leaders, -> { joins(:husband).where("husband.role"=>2).and(Marriage.where("marriages.updated_at > ?", Date.new(2024, 12, 15))) }
+  scope :active_co_leaders, -> { joins(:husband).where("husband.role"=>1).and(Marriage.where("marriages.updated_at > ?", Date.new(2024, 01, 15))) }
   scope :inactive_students, -> { joins(:husband).where(active: false, "husband.role" => 0) }
 
   scope :by_dinner_participation, ->(dinner_participation) { where(dinner_participation: dinner_participation) }

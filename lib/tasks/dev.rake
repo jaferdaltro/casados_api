@@ -70,7 +70,56 @@ namespace :dev do
         days_availability: [ "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" ].sample(2)
       ) if Rails.env.development?
     end
+  end
 
+  desc "Add leaders"
+  task add_leaders: :environment do
+    puts "Adding leaders..."
+    Faker::Config.locale = "pt-BR"
+    10.times do
+      husband = User.create!(
+        name: Faker::Name.name,
+        phone: Faker::PhoneNumber.cell_phone,
+        email: Faker::Internet.email,
+        role: 1,
+        password: DEFAULT_PASSWORD,
+        password_confirmation: DEFAULT_PASSWORD,
+        cpf: CPF.generate,
+        gender: "male",
+      ) if Rails.env.development?
+
+      wife = User.create!(
+        name: Faker::Name.female_first_name,
+        phone: Faker::PhoneNumber.cell_phone,
+        email: Faker::Internet.email,
+        role: 1,
+        password: DEFAULT_PASSWORD,
+        password_confirmation: DEFAULT_PASSWORD,
+        cpf: CPF.generate,
+        gender: "female",
+      ) if Rails.env.development?
+
+      address = Address.create!(
+        street: Faker::Address.street_name,
+        number: Faker::Address.building_number,
+        neighborhood: Faker::Address.community,
+        city: Faker::Address.city,
+        state: Faker::Address.state_abbr,
+        cep: Faker::Address.zip_code
+      ) if Rails.env.development?
+
+      Marriage.create!(
+        # uuid: SecureRandom.uuid,
+        husband_id: husband.id,
+        wife_id: wife.id,
+        address_id: address.id,
+        is_member: [ true, false ].sample,
+        registered_by: [ "Leo", "Jafer", "Carlos", "Fabício" ].sample,
+        reason: Faker::Fantasy::Tolkien.poem,
+        campus: [ "CN Fortleza", "CN Eusébio", "CN Maraponga" ].sample,
+        days_availability: [ "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" ].sample(2)
+      ) if Rails.env.development?
+    end
     puts "#{User.count} Usuários criados\n #{Marriage.count} Casais criados"
   end
 end
