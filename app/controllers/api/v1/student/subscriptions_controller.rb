@@ -9,8 +9,9 @@ module API::V1
 
     def create
       ActiveRecord::Base.transaction do
-        husband = ::User.create!(husband_params)
-        wife = ::User.create!(wife_params)
+        default_password = "123456"
+        husband = ::User.create!(husband_params.merge(password: default_password, password_confirmation: default_password))
+        wife = ::User.create!(wife_params.merge(password: default_password, password_confirmation: default_password))
         address = ::Address.create!(address_params)
 
         marriage = Marriage.new(

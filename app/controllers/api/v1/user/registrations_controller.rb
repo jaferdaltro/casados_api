@@ -1,8 +1,8 @@
 module API::V1
   class User::RegistrationsController < ApplicationController
     def create
-      user = ::User.new(registrations_params)
-
+      default_password = "123456"
+      user = ::User.new(registrations_params.merge(password: default_password, password_confirmation: default_password))
       if user.save
         render json: { user: user }, status: :created
       else
@@ -13,7 +13,7 @@ module API::V1
     def update
       user = ::User.find(params[:id])
       if user.update(registrations_params)
-        render json: { user: user }, status: :created
+        render json: { user: user }, status: :ok
       else
         render_error(status: :unprocessable_entity, message: user.errors.full_messages)
       end

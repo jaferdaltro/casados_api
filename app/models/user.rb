@@ -2,8 +2,6 @@ class User < ApplicationRecord
   VALID_PHONE_REGEX = /\A\(?([0-9]{2})\)?[-. ]?([0-9]{4,5})[-. ]?([0-9]{4})\z/
   has_secure_password
 
-  after_initialize :insert_password
-
   has_many :marriages_as_husband, class_name: "Marriage", foreign_key: "husband_id"
   has_many :marriages_as_wife, class_name: "Marriage", foreign_key: "wife_id"
   has_many :messages_as_sender, class_name: "Message", foreign_key: "sender_id"
@@ -65,10 +63,6 @@ class User < ApplicationRecord
   end
 
   private
-
-  def insert_password
-    self.password ||= "123456"
-  end
 
   def user_should_have_correct_cpf
     return if cpf.blank?
