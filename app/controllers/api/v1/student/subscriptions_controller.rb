@@ -51,7 +51,6 @@ module API::V1
 
       husband_data = husband_params[:password].blank? ? husband_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD) : husband_params
       wife_data = wife_params[:password].blank? ? wife_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD) : wife_params
-      debugger
       Marriage.transaction do
         begin
           marriage.husband.update!(husband_data)
