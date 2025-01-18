@@ -7,11 +7,12 @@ module API::V1
     InvalidAddressError = Class.new(StandardError)
     MarriageNotFoundError = Class.new(StandardError)
 
+    DEFAULT_PASSWORD = "123456"
+
     def create
       ActiveRecord::Base.transaction do
-        default_password = "123456"
-        husband = ::User.create!(husband_params.merge(password: default_password, password_confirmation: default_password))
-        wife = ::User.create!(wife_params.merge(password: default_password, password_confirmation: default_password))
+        husband = ::User.create!(husband_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD))
+        wife = ::User.create!(wife_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD))
         address = ::Address.create!(address_params)
 
         marriage = Marriage.new(
@@ -48,10 +49,13 @@ module API::V1
       marriage = Marriage.find_by(id: params[:id])
       return render json: { error: "Marriage not found" }, status: :not_found unless marriage
 
+      husband_data = husband_params[:password].blank? ? husband_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD) : husband_params
+      wife_data = wife_params[:password].blank? ? wife_params.merge(password: DEFAULT_PASSWORD, password_confirmation: DEFAULT_PASSWORD) : wife_params
+      debugger
       Marriage.transaction do
         begin
-          marriage.husband.update!(husband_params)
-          marriage.wife.update!(wife_params)
+          marriage.husband.update!(husband_data)
+          marriage.wife.update!(wife_data)
           marriage.address_id.nil? ? marriage.create_address(address_params) : marriage.address&.update!(address_params)
           marriage.update!(marriage_params)
 
