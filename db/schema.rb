@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_15_023249) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_18_221252) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -39,7 +39,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_15_023249) do
 
   create_table "classrooms", force: :cascade do |t|
     t.bigint "leader_marriage_id", null: false
-    t.bigint "co_leader_marriage_id", null: false
     t.integer "address_id"
     t.string "weekday"
     t.string "class_time"
@@ -47,7 +46,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_15_023249) do
     t.datetime "updated_at", null: false
     t.string "semester"
     t.boolean "active", default: false
-    t.index ["co_leader_marriage_id"], name: "index_classrooms_on_co_leader_marriage_id"
+    t.integer "co_leader_marriage_id"
     t.index ["leader_marriage_id"], name: "index_classrooms_on_leader_marriage_id"
   end
 
@@ -151,7 +150,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_15_023249) do
 
   add_foreign_key "classroom_students", "classrooms"
   add_foreign_key "classroom_students", "marriages"
-  add_foreign_key "classrooms", "marriages", column: "co_leader_marriage_id"
   add_foreign_key "classrooms", "marriages", column: "leader_marriage_id"
   add_foreign_key "payments", "marriages"
   add_foreign_key "user_tokens", "users"
