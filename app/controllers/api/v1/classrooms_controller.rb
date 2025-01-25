@@ -91,14 +91,9 @@ module API::V1
     end
 
     def address_params
-      return {} unless params[:address].present?
+      return {} unless params.has_key?(:address)
 
-      params.require(:address).permit(
-        :street,
-        :city,
-        :state,
-        :zip_code
-      )
+      params.require(:address).permit(:street, :number, :neighborhood, :city, :state, :cep)
     end
   end
 end
