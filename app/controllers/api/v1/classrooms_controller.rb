@@ -3,6 +3,10 @@ module API::V1
     InvalidAddressError = Class.new(StandardError)
 
     def create
+      leader_marriage = Marriage.find(classroom_params[:leader_marriage_id])
+      return render json: { message: "Turma já cadastrada nesse semestre!" },
+          status: :unprocessable_entity if leader_marriage.leader_classrooms.where(semester: "2025.1").exists?
+
       ActiveRecord::Base.transaction do
         address = ::Address.create!(address_params)
         raise InvalidAddressError unless address.valid?

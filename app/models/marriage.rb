@@ -7,6 +7,9 @@ class Marriage < ApplicationRecord
   has_many :classrooms, through: :classroom_students
   has_many :payments
 
+  has_many :leader_classrooms, class_name: "Classroom", foreign_key: "leader_marriage_id"
+  has_many :co_leader_classrooms, class_name: "Classroom", foreign_key: "co_leader_marriage_id"
+
   has_one :student_subscription
 
   validates :husband_id, :wife_id,  presence: true
