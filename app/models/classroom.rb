@@ -10,7 +10,8 @@ class Classroom < ApplicationRecord
 
   validates :class_time, format: { with: REGEX, message: "O formato deve ser HH:MM" }
   validates :weekday, inclusion: { in: %w[sunday monday tuesday wednesday thursday friday saturday] }
-  validate :should_have_a_leader, :student_limit, :should_have_only_one_class_per_leader_this_semester
+  validate :should_have_a_leader, :student_limit
+  validate :should_have_only_one_class_per_leader_this_semester, on: :create
 
   before_create :set_semester
 
