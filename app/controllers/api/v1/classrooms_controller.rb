@@ -1,12 +1,9 @@
 module API::V1
   class ClassroomsController < BaseController
+    before_action :set_classroom, only: :update
     InvalidAddressError = Class.new(StandardError)
 
     def create
-      leader_marriage = Marriage.find(classroom_params[:leader_marriage_id])
-      return render json: { message: "Turma já cadastrada nesse semestre!" },
-          status: :unprocessable_entity if leader_marriage.leader_classrooms.where(semester: "2025.1").exists?
-
       ActiveRecord::Base.transaction do
         address = ::Address.create!(address_params)
         raise InvalidAddressError unless address.valid?
@@ -36,17 +33,14 @@ module API::V1
     end
 
     def update
-      classroom = Classroom.find_by(id: params[:id])
-      return render json: { error: "Classroom not found" }, status: :not_found unless classroom
-
       ActiveRecord::Base.transaction do
-        address = classroom.address
+        address = @classroom.address
         address.update!(address_params) if address_params.present? && address.present?
 
-        if classroom.update(classroom_params)
+        if @classroom.update(classroom_params)
           render json: {
             message: "Classroom updated successfully",
-            data: classroom.as_json(
+            data: @classroom.as_json(
               include: {
                 leader_marriage: { include: [ :husband, :wife ] },
                 co_leader_marriage: { include: [ :husband, :wife ] },
@@ -56,7 +50,7 @@ module API::V1
           }, status: :ok
         else
           render json: {
-            error: classroom.errors.full_messages
+            error: @classroom.errors.full_messages
           }, status: :unprocessable_entity
         end
       end
@@ -82,6 +76,11 @@ module API::V1
     end
 
     private
+
+    def set_classroom
+      @classroom = Classroom.find_by(id: params[:id])
+      render json: { error: "Classroom not found" }, status: :not_found unless @classroom
+    end
 
     def classroom_params
       return {} unless params[:classroom].present?

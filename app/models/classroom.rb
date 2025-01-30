@@ -10,8 +10,7 @@ class Classroom < ApplicationRecord
 
   validates :class_time, format: { with: REGEX, message: "O formato deve ser HH:MM" }
   validates :weekday, inclusion: { in: %w[sunday monday tuesday wednesday thursday friday saturday] }
-  validate :should_have_a_leader
-  validate :student_limit
+  validate :should_have_a_leader, :student_limit, :should_have_only_one_class_per_leader_this_semester
 
   before_create :set_semester
 
@@ -27,6 +26,13 @@ class Classroom < ApplicationRecord
 
   def should_have_a_leader
     errors.add(:leader_marriage, "deve ser um casal de lider") unless leader_marriage.husband.role == "leader"
+  end
+
+  def should_have_only_one_class_per_leader_this_semester
+    return if leader_marriage.leader_classrooms.empty?
+
+    today_semester = set_semester
+    errors.add(:base, "essa turma já existe") if leader_marriage.leader_classrooms.last.semester == today_semester
   end
 
   def student_limit
