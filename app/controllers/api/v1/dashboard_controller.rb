@@ -6,7 +6,7 @@ module API::V1
       active_students = Marriage.active_students.count
       active_classrooms = Classroom.active.count
       inactive_students = Marriage.inactive_students.count
-      sended_messages = Message.sended.count
+      sended_messages = Marriage.sended_message.count
       created_classrooms = Classroom.count
 
       render json: {
