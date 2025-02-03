@@ -11,7 +11,7 @@ module API::V1
         " for receiver: #{@receiver&.id} and sender: #{current_user&.id}")
 
       render json: {
-        message: "Mensagem enviada com sucesso"
+        sended_message: true
         }, status: :created
     rescue StandardError => e
       render json: { error: e.message }, status: :internal_server_error
