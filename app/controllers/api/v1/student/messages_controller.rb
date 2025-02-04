@@ -36,7 +36,7 @@ module API::V1
     end
 
     def set_marriage_message
-      marriage = ::Marriage.find_by(husband_id: @receiver.id)
+      marriage = ::Marriage.find_by(wife_id: @receiver.id)
       marriage.update_attribute(:messaged, true)
     end
   end
