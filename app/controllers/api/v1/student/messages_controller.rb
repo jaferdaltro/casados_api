@@ -1,7 +1,7 @@
 module API::V1
   class Student::MessagesController < ApplicationController
     before_action :set_receiver, only: :create
-    before_action :current_user, only: :create
+    # before_action :current_user, only: :create
 
     def create
       message = message_params.to_json
