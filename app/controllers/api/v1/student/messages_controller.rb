@@ -5,11 +5,12 @@ module API::V1
 
     def create
       message = message_params.to_json
+      sender_id = @current_user.id || 1
       Evo::Base.new.create(message)
-      ::Message.create!(description: message, sender_id: current_user.id, receiver_id: @receiver&.id, sended: true)
+      ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
       set_marriage_message
       Rails.logger.info("[Message Create] Message created: #{message}" \
-        " for receiver: #{@receiver&.id} and sender: #{current_user&.id}")
+        " for receiver: #{@receiver&.id} and sender: #{sender_id}")
 
       render json: {
         sended_message: true
@@ -36,7 +37,8 @@ module API::V1
     end
 
     def set_marriage_message
-      marriage = ::Marriage.find_by(wife_id: @receiver.id)
+      marriage = ::Marriage.find_by("wife_id = ? OR husband_id = ?",  @receiver.id, @receiver.id)
+
       marriage.update_attribute(:messaged, true)
     end
   end
