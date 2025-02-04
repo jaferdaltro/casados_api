@@ -5,7 +5,7 @@ module API::V1
 
     def create
       message = message_params.to_json
-      sender_id = @current_user.id || 1
+      sender_id = 1
       Evo::Base.new.create(message)
       ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
       set_marriage_message
