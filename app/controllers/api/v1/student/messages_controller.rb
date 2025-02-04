@@ -4,9 +4,9 @@ module API::V1
     # before_action :current_user, only: :create
 
     def create
-      message = message_params.to_json
+      message = message_params.merge(options: { delay: 1200, presence: "composing", linkPreview: false })
       sender_id = 1029
-      Evo::Base.new.create(message)
+      Evo::Base.new.create(message.to_json)
       ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
       set_marriage_message
       Rails.logger.info("[Message Create] Message created: #{message}" \
