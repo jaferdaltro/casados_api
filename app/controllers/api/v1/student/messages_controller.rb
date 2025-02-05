@@ -6,15 +6,20 @@ module API::V1
     def create
       message = message_params.to_json
       sender_id = 1029
-      Evo::Base.new.create(message)
-      ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
-      set_marriage_message
-      Rails.logger.info("[Message Create] Message created: #{message}" \
-        " for receiver: #{@receiver&.id} and sender: #{sender_id}")
+      rsp = MessageJob.perform_now(message)
 
-      render json: {
-        sended_message: true
-        }, status: :created
+      if rsp.code == "200"
+        ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
+        set_marriage_message
+        Rails.logger.info("[Message Create] Message created: #{message}" \
+          " for receiver: #{@receiver&.id} and sender: #{sender_id}")
+
+        render json: {
+          sended_message: true
+          }, status: :created
+      else
+        render json: { error: rsp.body }, status: :internal_server_error
+      end
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
     rescue StandardError => e
