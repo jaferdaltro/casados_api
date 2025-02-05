@@ -25,6 +25,8 @@ gem "dockerfile-rails", ">= 1.6", group: :development
 
 gem "redis", "~> 5.3"
 
+gem "roo"
+
 gem "jwt", "~> 1.5", ">= 1.5.4"
 
 gem "kaminari", "~> 1.2", ">= 1.2.2"
