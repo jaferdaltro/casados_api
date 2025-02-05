@@ -4,7 +4,7 @@ module API::V1
     # before_action :current_user, only: :create
 
     def create
-      message = message_params.to_json
+      message = message_params
       sender_id = 1029
       Evo::Base.new.create(message)
       ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
