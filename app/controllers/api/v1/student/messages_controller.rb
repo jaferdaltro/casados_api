@@ -5,7 +5,7 @@ module API::V1
 
     def create
       message = message_params
-      sender_id = 1029
+      sender_id = 1# 1029
       Evo::Base.new.create(message)
       ::Message.create!(description: message, sender_id: sender_id, receiver_id: @receiver&.id, sended: true)
       set_marriage_message
@@ -24,9 +24,9 @@ module API::V1
     private
 
     def message_params
-      return {} unless params.has_key?(:data)
+      return {} unless params.has_key?(:message)
 
-      params.require(:data).permit(:number, :body)
+      params.require(:message).permit(:number, :text)
     end
 
     def set_receiver
