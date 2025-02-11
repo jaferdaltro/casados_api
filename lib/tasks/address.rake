@@ -24,6 +24,11 @@ namespace :address do
 
       count += 1
       puts "Atualizado: #{row[:cpf]}"
+      if student.address.to_coordinates.nil?
+        puts "Atulizado #{row[:cpf]} - Coordenadas não encontradas: #{student.address}"
+      else
+        puts "Atulizado #{row[:cpf]} - Coordenadas #{student.address.to_coordinates}"
+      end
     rescue ActiveRecord::RecordInvalid => e
       puts "Erro na linha #{row_number}: #{e.message}"
       puts "Dados: #{row}"
