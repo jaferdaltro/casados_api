@@ -5,7 +5,7 @@ require "roo"
 namespace :address do
   desc "Update address with lat lng"
   task :update, [ :filename ] => :environment do |t, args|
-    xlsx = Roo::Spreadsheet.open("#{Rails.root}/lib/xlsx/alunos.xlsx")
+    xlsx = Roo::Spreadsheet.open("#{Rails.root}/lib/xlsx/relatorio.xlsx")
     sheet = xlsx.sheet(0) # Acessa a primeira aba
 
     count = 0
