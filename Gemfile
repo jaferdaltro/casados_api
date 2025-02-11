@@ -33,6 +33,8 @@ gem "kaminari", "~> 1.2", ">= 1.2.2"
 
 gem "sidekiq", "~> 7.3", ">= 7.3.7"
 # gem "sidekiq-status", "~> 3.0", ">= 3.0.3"
+#
+gem "geocoder", "~> 1.3", ">= 1.3.7"
 
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
