@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_11_133721) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_11_190023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,8 +23,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_11_133721) do
     t.string "state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "lat", precision: 10, scale: 6
-    t.decimal "lng", precision: 10, scale: 6
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.index ["latitude", "longitude"], name: "index_addresses_on_latitude_and_longitude"
     t.index ["neighborhood"], name: "index_addresses_on_neighborhood"
     t.index ["street"], name: "index_addresses_on_street"
   end
@@ -137,6 +138,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_11_133721) do
     t.datetime "updated_at", null: false
     t.string "remember_token"
     t.string "remember_digest"
+    t.boolean "baby_look", default: false
     t.index ["phone"], name: "index_users_on_phone", unique: true
   end
 
