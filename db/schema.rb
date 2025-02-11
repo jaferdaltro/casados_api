@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_18_221252) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_11_133721) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_18_221252) do
     t.string "state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "lat", precision: 10, scale: 6
+    t.decimal "lng", precision: 10, scale: 6
     t.index ["neighborhood"], name: "index_addresses_on_neighborhood"
     t.index ["street"], name: "index_addresses_on_street"
   end
@@ -68,6 +70,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_18_221252) do
     t.integer "address_id"
     t.boolean "pastoral_indication", default: false
     t.string "id_asaas"
+    t.boolean "messaged", default: false
     t.index ["address_id"], name: "index_marriages_on_address_id"
     t.index ["husband_id", "wife_id"], name: "index_marriages_on_husband_id_and_wife_id", unique: true
     t.index ["husband_id"], name: "index_marriages_on_husband_id"
