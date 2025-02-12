@@ -27,7 +27,7 @@ namespace :address do
 
       count += 1
       indentification = row[:cpf].present? ? "cpf: #{row[:cpf]}" : "phone: #{row[:phone]}"
-      if student.address.to_coordinates.any?
+      if student.address.latitude.nil?
         puts "Atulizado #{indentification} - Coordenadas não encontradas #{student.address.street}"
       else
         puts "Atulizado #{indentification} - Coordenadas #{student.address.to_coordinates}"
