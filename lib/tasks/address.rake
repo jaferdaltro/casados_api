@@ -10,7 +10,7 @@ namespace :address do
 
     count = 0
     row_number = 1
-    sheet.each(city: "Cidade", cpf: "CPF do Marido", phone: "Telefone Marido", email_husband: "E-mail do Marido", email_wife: "E-mail da Esposa", shirt_husband: "Blusa marido", shirt_wife: "Blusa esposa", day: "Dia") do |row|
+    sheet.each(city: "Cidade", cpf: "CPF do Marido", phone: "Telefone Marido", email_husband: "E-mail do Marido", email_wife: "E-mail da Esposa", shirt_husband: "Blusa Marido", shirt_wife: "Blusa Esposa", day: "Dia") do |row|
       next if row[:city] == "Cidade"
       row_number += 1
 
