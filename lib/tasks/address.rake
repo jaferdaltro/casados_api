@@ -3,60 +3,173 @@
 
 require "roo"
 namespace :address do
-  desc "Update address with lat lng"
-  task :update, [ :filename ] => :environment do |t, args|
-    xlsx = Roo::Spreadsheet.open("#{Rails.root}/lib/xlsx/relatorio.xlsx")
-    sheet = xlsx.sheet(0) # Acessa a primeira aba
+  desc "Create or update addresses from Excel file"
+  task :sync, [ :filename ] => :environment do |t, args|
+    xlsx = Roo::Spreadsheet.open("#{Rails.root}/lib/xlsx/#{args[:filename] || 'relatorio.xlsx'}")
+    sheet = xlsx.sheet(0)
 
-    count = 0
+    count = { created: 0, updated: 0, errors: 0 }
     row_number = 1
+    failed_records = []
+
     sheet.each(
       city: "Cidade",
       cpf: "CPF do Marido",
-      endphone: "Telefone Marido",
+      phone: "Telefone Marido",
       email_husband: "E-mail do Marido",
-      endemail_wife: "E-mail da Esposa",
+      email_wife: "E-mail da Esposa",
       shirt_husband: "Blusa Marido",
       shirt_wife: "Blusa Esposa",
       street: "Endereco",
       day: "Dia"
     ) do |row|
-      next if row[:city] == "Cidade"
       row_number += 1
+      next if row[:city] == "Cidade"
 
-      cpf = cpf_normalize(row[:cpf])
-      phone = phone_normalize(row[:phone])
-      student = Marriage.by_cpf(cpf).last || Marriage.by_phone(phone).last
-      puts "ESUDANTE NÃO ENCONTRADO CPF: #{cpf}" if student.nil?
-      puts " -----------------------------------"
-      next if student.nil?
-      student.husband.update_columns(email: row[:email_husband], t_shirt_size: row[:shirt_husband])
-      wife_baby = row[:shirt_wife].match? /baby\s*look/i
-      student.wife.update_columns(email: row[:email_wife], t_shirt_size: row[:shirt_wife], baby_look: wife_baby)
-      match = row[:street].match(/^(?<rua>[^,]+),\s*(?<numero>\d+),\s*(?<complemento>.+)$/)
-      if match
-        student.address.update_columns(street: match[:rua], number: match[:numero], complement: match[:complemento], city: row[:city])
-      else
-        student.address.update_columns(street: row[:street], city: row[:city]) if match
-      end
-      student.update_columns(active: true, days_availability: [ set_day(row[:day]) ])
+      ActiveRecord::Base.transaction do
+        cpf = cpf_normalize(row[:cpf])
+        phone = phone_normalize(row[:phone])
 
-      count += 1
-      indentification = row[:cpf].present? ? "cpf: #{row[:cpf]}" : "phone: #{row[:phone]}"
-      if student.address.nil? || student.address.latitude.nil?
-        puts "Geolocalização não encontrada" if student.address&.latitude.nil?
-        puts "Dados: #{row}"
-      else
-        puts "Atulizado #{indentification} - Coordenadas #{student&.address.to_coordinates}"
+        # Find or initialize marriage
+        student = Marriage.find_or_initialize_by(
+          husband: User.find_by(cpf: cpf) || User.find_by(phone: phone)
+        )
+
+        if student.new_record?
+          create_new_marriage(student, row)
+          count[:created] += 1
+          puts "Created new marriage for CPF: #{cpf}"
+        else
+          update_existing_marriage(student, row)
+          count[:updated] += 1
+          puts "Updated marriage for CPF: #{cpf}"
+        end
+
+        # Update address
+        address_data = parse_address(row[:street])
+        student.address ||= Address.new
+        student.address.update!(
+          street: address_data[:street],
+          number: address_data[:number],
+          complement: address_data[:complement],
+          city: row[:city],
+          state: "Ceara"
+        )
+
+        log_coordinates(student, row)
+
+        # After address update
+        if student.address&.latitude.nil? || student.address&.longitude.nil?
+          failed_records << student
+          puts "Failed to get coordinates for: #{student.address&.full_address}"
+        end
       end
-      puts "-----------------------------------"
-    rescue ActiveRecord::RecordNotFound
-      puts "Erro na linha #{row_number}: Casamento não encontrado"
-    rescue ActiveRecord::RecordInvalid => e
-      puts "Erro na linha #{row_number}: #{e.message}"
-      puts "Dados: #{row}"
+
+    rescue StandardError => e
+      count[:errors] += 1
+      puts "Error on row #{row_number}: #{e.message}"
+      puts "Data: #{row.inspect}"
     end
-    puts "Total de casamentos atualizados: #{count}"
+
+    save_failed_coordinates_to_json(failed_records)
+    puts "Total records without coordinates: #{failed_records.size}"
+    print_summary(count)
+  end
+
+  private
+
+  def parse_address(address_string)
+    match = address_string.match(/^(?<rua>[^,]+),\s*(?<numero>\d+),\s*(?<complemento>.+)$/)
+
+    if match
+      {
+        street: match[:rua],
+        number: match[:numero],
+        complement: match[:complemento]
+      }
+    else
+      { street: address_string }
+    end
+  end
+
+  def create_new_marriage(student, row)
+    student.build_husband(
+      email: row[:email_husband],
+      t_shirt_size: row[:shirt_husband],
+      cpf: cpf_normalize(row[:cpf]),
+      phone: phone_normalize(row[:phone])
+    )
+
+    student.build_wife(
+      email: row[:email_wife],
+      t_shirt_size: row[:shirt_wife],
+      baby_look: row[:shirt_wife].match?(/baby\s*look/i)
+    )
+
+    student.days_availability = [ set_day(row[:day]) ]
+    student.active = true
+    student.save!
+  end
+
+  def update_existing_marriage(student, row)
+    student.husband.update!(
+      email: row[:email_husband],
+      t_shirt_size: row[:shirt_husband]
+    )
+
+    student.wife.update!(
+      email: row[:email_wife],
+      t_shirt_size: row[:shirt_wife],
+      baby_look: row[:shirt_wife].match?(/baby\s*look/i)
+    )
+
+    student.update!(
+      active: true,
+      days_availability: [ set_day(row[:day]) ]
+    )
+  end
+
+  def log_coordinates(student, row)
+    identification = row[:cpf].present? ? "CPF: #{row[:cpf]}" : "Phone: #{row[:phone]}"
+
+    if student.address.nil? || student.address.latitude.nil?
+      puts "Geolocation not found for #{identification}"
+    else
+      puts "#{identification} - Coordinates: #{student.address.to_coordinates}"
+    end
+    puts "-----------------------------------"
+  end
+
+  def print_summary(count)
+    puts "\nSummary:"
+    puts "Created: #{count[:created]}"
+    puts "Updated: #{count[:updated]}"
+    puts "Errors: #{count[:errors]}"
+    puts "Total processed: #{count.values.sum}"
+  end
+
+  def save_failed_coordinates_to_json(failed_records)
+    return if failed_records.empty?
+
+    timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
+    filepath = Rails.root.join("log", "failed_coordinates_#{timestamp}.json")
+
+    failed_data = failed_records.map do |record|
+      {
+        id: record.id,
+        street: record.address&.street,
+        number: record.address&.number,
+        city: record.address&.city,
+        state: record.address&.state,
+        full_address: record.address&.full_address,
+        husband_name: record.husband&.name,
+        wife_name: record.wife&.name,
+        created_at: record.created_at
+      }
+    end
+
+    File.write(filepath, JSON.pretty_generate(failed_data))
+    puts "Failed coordinates saved to: #{filepath}"
   end
 end
 
