@@ -10,7 +10,17 @@ namespace :address do
 
     count = 0
     row_number = 1
-    sheet.each(city: "Cidade", cpf: "CPF do Marido", phone: "Telefone Marido", email_husband: "E-mail do Marido", email_wife: "E-mail da Esposa", shirt_husband: "Blusa Marido", shirt_wife: "Blusa Esposa", day: "Dia") do |row|
+    sheet.each(
+      city: "Cidade",
+      cpf: "CPF do Marido",
+      endphone: "Telefone Marido",
+      email_husband: "E-mail do Marido",
+      endemail_wife: "E-mail da Esposa",
+      shirt_husband: "Blusa Marido",
+      shirt_wife: "Blusa Esposa",
+      street: "Endereco",
+      day: "Dia"
+    ) do |row|
       next if row[:city] == "Cidade"
       row_number += 1
 
@@ -23,6 +33,12 @@ namespace :address do
       student.husband.update_columns(email: row[:email_husband], t_shirt_size: row[:shirt_husband])
       wife_baby = row[:shirt_wife].match? /baby\s*look/i
       student.wife.update_columns(email: row[:email_wife], t_shirt_size: row[:shirt_wife], baby_look: wife_baby)
+      match = row[:street].match(/^(?<rua>[^,]+),\s*(?<numero>\d+),\s*(?<complemento>.+)$/)
+      if match
+        student.address.update_columns(street: match[:rua], number: match[:numero], complement: match[:complemento], city: row[:city])
+      else
+        student.address.update_columns(street: row[:street], city: row[:city]) if match
+      end
       student.update_columns(active: true, days_availability: [ set_day(row[:day]) ])
 
       count += 1
@@ -46,6 +62,9 @@ end
 def cpf_normalize(cpf)
   st_cpf = CPF.new(cpf)
   st_cpf.valid? ? st_cpf.stripped : nil
+end
+
+def street_normalize(street)
 end
 
 def phone_normalize(phone)
