@@ -17,18 +17,22 @@ namespace :address do
       cpf = cpf_normalize(row[:cpf])
       phone = phone_normalize(row[:phone])
       student = Marriage.by_cpf(cpf).last || Marriage.by_phone(phone).last
-      student.husband.update_columns(email: row[:email_husband], shirt: row[:shirt_husband])
+      puts "ESUDANTE NÃO ENCONTRADO CPF: #{cpf}" if student.nil?
+      puts " -----------------------------------"
+      next if student.nil?
+      student.husband.update_columns(email: row[:email_husband], t_shirt_size: row[:shirt_husband])
       wife_baby = row[:shirt_wife].match? /baby\s*look/i
-      student.wife.update_columns(email: row[:email_wife], shirt: row[:shirt_wife], baby_look: wife_baby)
+      student.wife.update_columns(email: row[:email_wife], t_shirt_size: row[:shirt_wife], baby_look: wife_baby)
       student.update_columns(active: true, days_availability: [ set_day(row[:day]) ])
 
       count += 1
-      puts "Atualizado: #{row[:cpf]}"
-      if student.address.to_coordinates.nil?
-        puts "Atulizado #{row[:cpf]} - Coordenadas não encontradas: #{student.address}"
+      indentification = row[:cpf].present? ? "cpf: #{row[:cpf]}" : "phone: #{row[:phone]}"
+      if student.address.to_coordinates.any?
+        puts "Atulizado #{indentification} - Coordenadas não encontradas #{student.address.street}"
       else
-        puts "Atulizado #{row[:cpf]} - Coordenadas #{student.address.to_coordinates}"
+        puts "Atulizado #{indentification} - Coordenadas #{student.address.to_coordinates}"
       end
+      puts "-----------------------------------"
     rescue ActiveRecord::RecordNotFound
       puts "Erro na linha #{row_number}: Casamento não encontrado"
     rescue ActiveRecord::RecordInvalid => e
