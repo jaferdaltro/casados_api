@@ -16,7 +16,7 @@ namespace :address do
 
       cpf = cpf_normalize(row[:cpf])
       phone = phone_normalize(row[:phone])
-      student = Marriage.by_cpf(cpf) || Marriage.by_phone(phone)
+      student = Marriage.by_cpf(cpf).last || Marriage.by_phone(phone).last
       student.husband.update_columns(email: row[:email_husband], shirt: row[:shirt_husband])
       wife_baby = row[:shirt_wife].match? /baby\s*look/i
       student.wife.update_columns(email: row[:email_wife], shirt: row[:shirt_wife], baby_look: wife_baby)
@@ -29,6 +29,8 @@ namespace :address do
       else
         puts "Atulizado #{row[:cpf]} - Coordenadas #{student.address.to_coordinates}"
       end
+    rescue ActiveRecord::RecordNotFound
+      puts "Erro na linha #{row_number}: Casamento não encontrado"
     rescue ActiveRecord::RecordInvalid => e
       puts "Erro na linha #{row_number}: #{e.message}"
       puts "Dados: #{row}"
