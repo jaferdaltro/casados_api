@@ -43,10 +43,11 @@ namespace :address do
 
       count += 1
       indentification = row[:cpf].present? ? "cpf: #{row[:cpf]}" : "phone: #{row[:phone]}"
-      if student.address&.latitude.nil?
-        puts "Atulizado #{indentification} - Coordenadas não encontradas #{student.address.street}"
+      if student.address.nil? || student.address.latitude.nil?
+        puts "Geolocalização não encontrada" if student.address&.latitude.nil?
+        puts "Dados: #{row}"
       else
-        puts "Atulizado #{indentification} - Coordenadas #{student.address.to_coordinates}"
+        puts "Atulizado #{indentification} - Coordenadas #{student&.address.to_coordinates}"
       end
       puts "-----------------------------------"
     rescue ActiveRecord::RecordNotFound
