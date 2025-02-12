@@ -43,7 +43,7 @@ namespace :address do
 
       count += 1
       indentification = row[:cpf].present? ? "cpf: #{row[:cpf]}" : "phone: #{row[:phone]}"
-      if student.address.latitude.nil?
+      if student.address&.latitude.nil?
         puts "Atulizado #{indentification} - Coordenadas não encontradas #{student.address.street}"
       else
         puts "Atulizado #{indentification} - Coordenadas #{student.address.to_coordinates}"
@@ -62,9 +62,6 @@ end
 def cpf_normalize(cpf)
   st_cpf = CPF.new(cpf)
   st_cpf.valid? ? st_cpf.stripped : nil
-end
-
-def street_normalize(street)
 end
 
 def phone_normalize(phone)
