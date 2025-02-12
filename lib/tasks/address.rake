@@ -61,7 +61,7 @@ namespace :address do
         # After address update
         if student.address&.latitude.nil? || student.address&.longitude.nil?
           failed_records << student
-          puts "Failed to get coordinates for: #{student.address&.full_address}"
+          puts "Failed to get coordinates for: #{student.address&.location}"
         end
       end
 
@@ -152,7 +152,7 @@ namespace :address do
     return if failed_records.empty?
 
     timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
-    filepath = Rails.root.join("log", "failed_coordinates_#{timestamp}.json")
+    filepath = Rails.root.join("tmp", "failed_coordinates_#{timestamp}.json")
 
     failed_data = failed_records.map do |record|
       {
@@ -161,7 +161,7 @@ namespace :address do
         number: record.address&.number,
         city: record.address&.city,
         state: record.address&.state,
-        full_address: record.address&.full_address,
+        location: record.address&.location,
         husband_name: record.husband&.name,
         wife_name: record.wife&.name,
         created_at: record.created_at
